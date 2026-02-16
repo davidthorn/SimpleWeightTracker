@@ -99,6 +99,38 @@ internal struct EditWeightEntryView: View {
                 .padding(.vertical, 12)
             }
             .scrollDismissesKeyboard(.interactively)
+
+            if showingDeleteConfirmation {
+                Color.black.opacity(0.16)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        showingDeleteConfirmation = false
+                    }
+
+                DestructiveConfirmationCardComponent(
+                    title: "Delete this entry?",
+                    message: "This permanently removes the weight log from your history.",
+                    confirmTitle: "Delete Entry",
+                    tint: AppTheme.error,
+                    isDisabled: false,
+                    onCancel: {
+                        showingDeleteConfirmation = false
+                    },
+                    onConfirm: {
+                        Task {
+                            if Task.isCancelled { return }
+                            let didDelete = await viewModel.delete()
+                            if didDelete {
+                                dismiss()
+                            } else {
+                                showingDeleteConfirmation = false
+                            }
+                        }
+                    }
+                )
+                .padding(.horizontal, 16)
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+            }
         }
         .tint(AppTheme.accent)
         .navigationTitle("Edit Entry")
@@ -110,18 +142,7 @@ internal struct EditWeightEntryView: View {
             if Task.isCancelled { return }
             await viewModel.observeUnit()
         }
-        .confirmationDialog("Are you sure you want to delete this?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                Task {
-                    if Task.isCancelled { return }
-                    let didDelete = await viewModel.delete()
-                    if didDelete {
-                        dismiss()
-                    }
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
+        .animation(.easeInOut(duration: 0.2), value: showingDeleteConfirmation)
     }
 
     private var cardBackground: some View {

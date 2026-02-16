@@ -9,54 +9,153 @@ import SwiftUI
 
 internal struct DataManagementView: View {
     @StateObject private var viewModel: DataManagementViewModel
-    @State private var showingGoalDeleteConfirmation: Bool
-    @State private var showingResetConfirmation: Bool
+    @State private var pendingConfirmationAction: DataManagementConfirmationAction?
 
     internal init(serviceContainer: ServiceContainerProtocol) {
         let vm = DataManagementViewModel(serviceContainer: serviceContainer)
         _viewModel = StateObject(wrappedValue: vm)
-        _showingGoalDeleteConfirmation = State(initialValue: false)
-        _showingResetConfirmation = State(initialValue: false)
+        _pendingConfirmationAction = State(initialValue: nil)
     }
 
     internal var body: some View {
-        List {
-            Button("Delete Goal", role: .destructive) {
-                showingGoalDeleteConfirmation = true
+        ZStack {
+            AppTheme.pageGradient
+                .ignoresSafeArea()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    DataManagementHeroCardComponent()
+
+                    sectionTitle("Targeted Actions")
+
+                    DataManagementActionCardComponent(
+                        title: "Delete Goal",
+                        subtitle: "Removes your current target while keeping historical entries.",
+                        systemImage: "target",
+                        tint: AppTheme.warning,
+                        actionTitle: "Delete Goal",
+                        isDisabled: viewModel.isPerformingAction
+                    ) {
+                        pendingConfirmationAction = .clearGoal
+                    }
+
+                    DataManagementActionCardComponent(
+                        title: "Reset Preferences",
+                        subtitle: "Resets units, reminder schedule, and history filter settings.",
+                        systemImage: "slider.horizontal.3",
+                        tint: AppTheme.accent,
+                        actionTitle: "Reset Preferences",
+                        isDisabled: viewModel.isPerformingAction
+                    ) {
+                        pendingConfirmationAction = .resetPreferences
+                    }
+
+                    sectionTitle("Danger Zone")
+
+                    DataManagementActionCardComponent(
+                        title: "Wipe All Data",
+                        subtitle: "Permanently removes all entries, goal, reminder schedule, and preferences.",
+                        systemImage: "trash.fill",
+                        tint: AppTheme.error,
+                        actionTitle: "Wipe All Data",
+                        isDisabled: viewModel.isPerformingAction
+                    ) {
+                        pendingConfirmationAction = .wipeAllData
+                    }
+
+                    if let message = viewModel.message {
+                        DataManagementFeedbackCardComponent(
+                            message: message,
+                            isError: viewModel.isErrorMessage
+                        )
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
 
-            Button("Reset Preferences", role: .destructive) {
-                showingResetConfirmation = true
-            }
+            if let pendingConfirmationAction {
+                Color.black.opacity(0.16)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        if viewModel.isPerformingAction { return }
+                        self.pendingConfirmationAction = nil
+                    }
 
-            if let message = viewModel.message {
-                Text(message)
-                    .foregroundStyle(.secondary)
+                confirmationCard(for: pendingConfirmationAction)
+                    .padding(.horizontal, 16)
+                    .transition(.opacity.combined(with: .scale(scale: 0.98)))
             }
         }
-        .scrollContentBackground(.hidden)
-        .background(AppTheme.pageGradient.ignoresSafeArea())
-        .listRowBackground(AppTheme.cardBackground)
         .tint(AppTheme.accent)
         .navigationTitle("Data Management")
-        .confirmationDialog("Are you sure you want to delete this?", isPresented: $showingGoalDeleteConfirmation, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                Task {
-                    if Task.isCancelled { return }
-                    await viewModel.clearGoal()
+        .animation(.easeInOut(duration: 0.2), value: pendingConfirmationAction != nil)
+    }
+
+    @ViewBuilder
+    private func confirmationCard(for action: DataManagementConfirmationAction) -> some View {
+        switch action {
+        case .clearGoal:
+            DestructiveConfirmationCardComponent(
+                title: "Delete current goal?",
+                message: "This removes your target value but keeps all logged weight entries.",
+                confirmTitle: "Delete Goal",
+                tint: AppTheme.warning,
+                isDisabled: viewModel.isPerformingAction,
+                onCancel: {
+                    pendingConfirmationAction = nil
+                },
+                onConfirm: {
+                    Task {
+                        if Task.isCancelled { return }
+                        await viewModel.clearGoal()
+                        pendingConfirmationAction = nil
+                    }
                 }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
-        .confirmationDialog("Are you sure you want to delete this?", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                Task {
-                    if Task.isCancelled { return }
-                    await viewModel.resetPreferences()
+            )
+        case .resetPreferences:
+            DestructiveConfirmationCardComponent(
+                title: "Reset preferences?",
+                message: "This resets units, reminder schedule, and history filter settings.",
+                confirmTitle: "Reset",
+                tint: AppTheme.accent,
+                isDisabled: viewModel.isPerformingAction,
+                onCancel: {
+                    pendingConfirmationAction = nil
+                },
+                onConfirm: {
+                    Task {
+                        if Task.isCancelled { return }
+                        await viewModel.resetPreferences()
+                        pendingConfirmationAction = nil
+                    }
                 }
-            }
-            Button("Cancel", role: .cancel) {}
+            )
+        case .wipeAllData:
+            DestructiveConfirmationCardComponent(
+                title: "Wipe all data from this app?",
+                message: "This permanently removes all entries, goal, reminder schedule, and preferences.",
+                confirmTitle: "Wipe All Data",
+                tint: AppTheme.error,
+                isDisabled: viewModel.isPerformingAction,
+                onCancel: {
+                    pendingConfirmationAction = nil
+                },
+                onConfirm: {
+                    Task {
+                        if Task.isCancelled { return }
+                        await viewModel.wipeAllData()
+                        pendingConfirmationAction = nil
+                    }
+                }
+            )
         }
+    }
+
+    private func sectionTitle(_ title: String) -> some View {
+        Text(title.uppercased())
+            .font(.caption.weight(.bold))
+            .foregroundStyle(AppTheme.muted)
     }
 }
 
