@@ -24,7 +24,12 @@ internal struct NotificationPermissionsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    NotificationPermissionsHeaderCardComponent()
+                    ThemedHeroHeaderCardComponent(
+                        title: "Notification Permission",
+                        subtitle: "Weight reminders help you keep your logging routine consistent.",
+                        systemImage: "bell.badge.fill",
+                        tint: AppTheme.warning
+                    )
                     permissionStateCard
 
                     if let errorMessage = viewModel.errorMessage {

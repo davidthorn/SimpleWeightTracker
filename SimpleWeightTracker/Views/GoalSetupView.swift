@@ -27,7 +27,12 @@ internal struct GoalSetupView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    GoalSetupHeroCardComponent()
+                    ThemedHeroHeaderCardComponent(
+                        title: "Target Setup",
+                        subtitle: "Define the number you are moving toward.",
+                        systemImage: "target",
+                        tint: AppTheme.accent
+                    )
 
                     GoalSetupFormFieldsComponent(
                         targetValueText: $viewModel.targetValueText,

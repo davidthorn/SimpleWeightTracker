@@ -24,7 +24,12 @@ internal struct HealthKitSettingsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    HealthKitSettingsHeaderCardComponent()
+                    ThemedHeroHeaderCardComponent(
+                        title: "Health Integration",
+                        subtitle: "Choose whether new weight entries should be written to Apple Health.",
+                        systemImage: "heart.text.square.fill",
+                        tint: AppTheme.error
+                    )
 
                     HealthKitPermissionsCardComponent(
                         permissionState: viewModel.permissionState,

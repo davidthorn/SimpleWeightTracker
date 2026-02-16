@@ -27,7 +27,12 @@ internal struct ReminderSettingsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    ReminderSettingsHeroCardComponent()
+                    ThemedHeroHeaderCardComponent(
+                        title: "Reminder Engine",
+                        subtitle: "Tune cadence and active hours for your prompts.",
+                        systemImage: "bell.badge.fill",
+                        tint: AppTheme.warning
+                    )
 
                     ReminderSettingsFormCardComponent(
                         isEnabled: $viewModel.isEnabled,

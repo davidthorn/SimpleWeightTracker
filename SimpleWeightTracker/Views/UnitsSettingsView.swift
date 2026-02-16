@@ -27,7 +27,12 @@ internal struct UnitsSettingsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    UnitsSettingsHeroCardComponent()
+                    ThemedHeroHeaderCardComponent(
+                        title: "Unit Preference",
+                        subtitle: "Pick your base measurement language.",
+                        systemImage: "scalemass",
+                        tint: AppTheme.accent
+                    )
 
                     UnitsSettingsFormCardComponent(selectedUnit: $viewModel.selectedUnit)
 

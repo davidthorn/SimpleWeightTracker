@@ -24,7 +24,12 @@ internal struct DataManagementView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    DataManagementHeroCardComponent()
+                    ThemedHeroHeaderCardComponent(
+                        title: "Data Controls",
+                        subtitle: "Use these actions carefully. Some operations permanently remove stored data.",
+                        systemImage: "externaldrive.badge.exclamationmark",
+                        tint: AppTheme.error
+                    )
 
                     sectionTitle("Targeted Actions")
 

@@ -22,7 +22,12 @@ internal struct HistoryFilterView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    HistoryFilterHeroCardComponent()
+                    ThemedHeroHeaderCardComponent(
+                        title: "Filter Window",
+                        subtitle: "Focus history on the window that matters now.",
+                        systemImage: "line.3.horizontal.decrease.circle.fill",
+                        tint: AppTheme.warning
+                    )
 
                     HistoryFilterFormCardComponent(
                         selection: $viewModel.selection,

@@ -23,7 +23,12 @@ internal struct AddWeightEntryView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    AddWeightEntryHeroCardComponent()
+                    ThemedHeroHeaderCardComponent(
+                        title: "Log Weight",
+                        subtitle: "Capture today with a clean, accurate entry.",
+                        systemImage: "plus.circle.fill",
+                        tint: AppTheme.accent
+                    )
 
                     AddWeightEntryFormFieldsComponent(
                         valueText: $viewModel.valueText,
