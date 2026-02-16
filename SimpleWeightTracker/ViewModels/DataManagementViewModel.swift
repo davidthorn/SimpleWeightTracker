@@ -19,6 +19,8 @@ internal final class DataManagementViewModel: ObservableObject {
     private let unitsPreferenceService: UnitsPreferenceServiceProtocol
     private let reminderService: ReminderServiceProtocol
     private let historyFilterService: HistoryFilterServiceProtocol
+    private let healthKitWeightService: HealthKitWeightServiceProtocol
+    private let weightEntrySyncMetadataService: WeightEntrySyncMetadataServiceProtocol
 
     internal init(serviceContainer: ServiceContainerProtocol) {
         weightEntryService = serviceContainer.weightEntryService
@@ -26,6 +28,8 @@ internal final class DataManagementViewModel: ObservableObject {
         unitsPreferenceService = serviceContainer.unitsPreferenceService
         reminderService = serviceContainer.reminderService
         historyFilterService = serviceContainer.historyFilterService
+        healthKitWeightService = serviceContainer.healthKitWeightService
+        weightEntrySyncMetadataService = serviceContainer.weightEntrySyncMetadataService
         message = nil
         isErrorMessage = false
         isPerformingAction = false
@@ -37,6 +41,7 @@ internal final class DataManagementViewModel: ObservableObject {
 
         await unitsPreferenceService.resetUnit()
         await historyFilterService.resetConfiguration()
+        await healthKitWeightService.resetAutoSyncEnabled()
         try? await reminderService.clearSchedule()
         isErrorMessage = false
         message = "Preferences reset."
@@ -70,6 +75,8 @@ internal final class DataManagementViewModel: ObservableObject {
             try await goalService.deleteGoal()
             await unitsPreferenceService.resetUnit()
             await historyFilterService.resetConfiguration()
+            await healthKitWeightService.resetAutoSyncEnabled()
+            try await weightEntrySyncMetadataService.deleteAllMetadata()
             try await reminderService.clearSchedule()
 
             isErrorMessage = false

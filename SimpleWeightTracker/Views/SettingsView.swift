@@ -65,6 +65,16 @@ internal struct SettingsView: View {
                         }
                         .buttonStyle(.plain)
 
+                        NavigationLink(value: SettingsRoute.healthKit) {
+                            routeRow(
+                                title: "HealthKit",
+                                subtitle: viewModel.healthKitSubtitle,
+                                systemImage: "heart.text.square.fill",
+                                tint: AppTheme.success
+                            )
+                        }
+                        .buttonStyle(.plain)
+
                         NavigationLink(value: SettingsRoute.dataManagement) {
                             routeRow(
                                 title: "Data Management",

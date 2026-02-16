@@ -13,4 +13,6 @@ internal protocol ServiceContainerProtocol: Sendable {
     var reminderService: ReminderServiceProtocol { get }
     var unitsPreferenceService: UnitsPreferenceServiceProtocol { get }
     var historyFilterService: HistoryFilterServiceProtocol { get }
+    var healthKitWeightService: HealthKitWeightServiceProtocol { get }
+    var weightEntrySyncMetadataService: WeightEntrySyncMetadataServiceProtocol { get }
 }

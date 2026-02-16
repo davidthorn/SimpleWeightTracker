@@ -10,26 +10,63 @@ import Foundation
 
 @MainActor
 internal final class WeightEntryEditorViewModel: ObservableObject {
+    private static let syncDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
+    private static func detailedErrorMessage(_ error: Error) -> String {
+        let nsError = error as NSError
+        var lines: [String] = []
+        lines.append("Type: \(String(reflecting: type(of: error)))")
+        lines.append("Description: \(error.localizedDescription)")
+        lines.append("Debug: \(String(reflecting: error))")
+        lines.append("Domain: \(nsError.domain)")
+        lines.append("Code: \(nsError.code)")
+
+        if nsError.userInfo.isEmpty == false {
+            lines.append("UserInfo: \(nsError.userInfo)")
+        }
+
+        if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? Error {
+            lines.append("Underlying: \(String(reflecting: underlyingError))")
+        }
+
+        return lines.joined(separator: "\n")
+    }
+
     @Published internal var valueText: String
     @Published internal var selectedUnit: WeightUnit
     @Published internal var measuredAt: Date
     @Published internal private(set) var errorMessage: String?
     @Published internal private(set) var initialEntry: WeightEntry?
+    @Published internal private(set) var syncMetadata: WeightEntrySyncMetadata?
+    @Published internal private(set) var healthKitPermissionState: HealthKitWeightPermissionState
+    @Published internal private(set) var isSyncingToHealthKit: Bool
 
     internal let persistedIdentifier: WeightEntryIdentifier?
 
     private let weightEntryService: WeightEntryServiceProtocol
     private let unitsPreferenceService: UnitsPreferenceServiceProtocol
+    private let healthKitWeightService: HealthKitWeightServiceProtocol
+    private let weightEntrySyncMetadataService: WeightEntrySyncMetadataServiceProtocol
 
     internal init(serviceContainer: ServiceContainerProtocol, entryIdentifier: WeightEntryIdentifier?) {
         weightEntryService = serviceContainer.weightEntryService
         unitsPreferenceService = serviceContainer.unitsPreferenceService
+        healthKitWeightService = serviceContainer.healthKitWeightService
+        weightEntrySyncMetadataService = serviceContainer.weightEntrySyncMetadataService
         persistedIdentifier = entryIdentifier
         valueText = ""
         selectedUnit = .kilograms
         measuredAt = Date()
         errorMessage = nil
         initialEntry = nil
+        syncMetadata = nil
+        healthKitPermissionState = .unavailable()
+        isSyncingToHealthKit = false
     }
 
     internal var isPersisted: Bool {
@@ -51,6 +88,8 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
     }
 
     internal func load() async {
+        healthKitPermissionState = await healthKitWeightService.fetchPermissionState()
+
         guard let persistedIdentifier else {
             selectedUnit = await unitsPreferenceService.fetchUnit()
             return
@@ -66,12 +105,18 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
             valueText = String(format: "%.1f", fetchedEntry.value)
             selectedUnit = fetchedEntry.unit
             measuredAt = fetchedEntry.measuredAt
+            syncMetadata = try await weightEntrySyncMetadataService.fetchMetadata(
+                for: persistedIdentifier,
+                providerIdentifier: healthKitWeightService.providerIdentifier
+            )
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = Self.detailedErrorMessage(error)
         }
     }
 
     internal func save() async -> Bool {
+        let isNewEntry = persistedIdentifier == nil
+        let shouldInvalidateSyncMetadata = isNewEntry == false && hasChanges
         let normalizedValueText = valueText.normalizedDecimalSeparator
 
         guard let value = Double(normalizedValueText) else {
@@ -88,10 +133,27 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
 
         do {
             try await weightEntryService.upsertEntry(entry)
+            if isNewEntry {
+                let externalIdentifier = try await healthKitWeightService.syncEntryIfEnabled(entry)
+                if let externalIdentifier {
+                    let metadata = WeightEntrySyncMetadata(
+                        entryID: entry.id,
+                        providerIdentifier: healthKitWeightService.providerIdentifier,
+                        externalIdentifier: externalIdentifier,
+                        syncedAt: Date()
+                    )
+                    try await weightEntrySyncMetadataService.upsertMetadata(metadata)
+                    syncMetadata = metadata
+                }
+            } else if shouldInvalidateSyncMetadata, let persistedIdentifier {
+                try await weightEntrySyncMetadataService.deleteMetadata(for: persistedIdentifier)
+                syncMetadata = nil
+            }
             initialEntry = entry
+            errorMessage = nil
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = Self.detailedErrorMessage(error)
             return false
         }
     }
@@ -111,9 +173,10 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
 
         do {
             try await weightEntryService.deleteEntry(id: persistedIdentifier)
+            try await weightEntrySyncMetadataService.deleteMetadata(for: persistedIdentifier)
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = Self.detailedErrorMessage(error)
             return false
         }
     }
@@ -125,6 +188,73 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
                 continue
             }
             selectedUnit = snapshot
+        }
+    }
+
+    internal func refreshSyncStatus() async {
+        healthKitPermissionState = await healthKitWeightService.fetchPermissionState()
+
+        guard let persistedIdentifier else {
+            syncMetadata = nil
+            return
+        }
+
+        do {
+            syncMetadata = try await weightEntrySyncMetadataService.fetchMetadata(
+                for: persistedIdentifier,
+                providerIdentifier: healthKitWeightService.providerIdentifier
+            )
+        } catch {
+            syncMetadata = nil
+            errorMessage = Self.detailedErrorMessage(error)
+        }
+    }
+
+    internal var canSyncToHealthKit: Bool {
+        isPersisted && healthKitPermissionState.write == .authorized
+    }
+
+    internal var syncStatusText: String {
+        if let syncMetadata {
+            return "Synced to HealthKit on \(Self.syncDateFormatter.string(from: syncMetadata.syncedAt))."
+        }
+
+        if healthKitPermissionState.write == .authorized {
+            return "Not synced yet."
+        }
+
+        if healthKitPermissionState.write == .denied {
+            return "HealthKit write permission denied."
+        }
+
+        if healthKitPermissionState.write == .notDetermined {
+            return "HealthKit write permission not requested."
+        }
+
+        return "HealthKit is unavailable."
+    }
+
+    internal func syncPersistedEntryToHealthKit() async {
+        guard let persistedIdentifier else { return }
+        guard let entry = initialEntry else { return }
+        isSyncingToHealthKit = true
+        defer { isSyncingToHealthKit = false }
+
+        do {
+            let externalIdentifier = try await healthKitWeightService.syncEntry(entry)
+            let metadata = WeightEntrySyncMetadata(
+                entryID: persistedIdentifier.value,
+                providerIdentifier: healthKitWeightService.providerIdentifier,
+                externalIdentifier: externalIdentifier,
+                syncedAt: Date()
+            )
+            try await weightEntrySyncMetadataService.upsertMetadata(metadata)
+            syncMetadata = metadata
+            healthKitPermissionState = await healthKitWeightService.fetchPermissionState()
+            errorMessage = nil
+        } catch {
+            errorMessage = Self.detailedErrorMessage(error)
+            healthKitPermissionState = await healthKitWeightService.fetchPermissionState()
         }
     }
 }

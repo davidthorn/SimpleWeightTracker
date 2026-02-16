@@ -12,5 +12,6 @@ internal enum SettingsRoute: Hashable {
     case units
     case reminders
     case notificationPermissions
+    case healthKit
     case dataManagement
 }

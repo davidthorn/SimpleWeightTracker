@@ -41,7 +41,7 @@ internal struct DataManagementView: View {
 
                     DataManagementActionCardComponent(
                         title: "Reset Preferences",
-                        subtitle: "Resets units, reminder schedule, and history filter settings.",
+                        subtitle: "Resets units, reminder schedule, history filter, and HealthKit sync settings.",
                         systemImage: "slider.horizontal.3",
                         tint: AppTheme.accent,
                         actionTitle: "Reset Preferences",
@@ -54,7 +54,7 @@ internal struct DataManagementView: View {
 
                     DataManagementActionCardComponent(
                         title: "Wipe All Data",
-                        subtitle: "Permanently removes all entries, goal, reminder schedule, and preferences.",
+                        subtitle: "Permanently removes all entries, goal, reminder schedule, and preferences including HealthKit sync.",
                         systemImage: "trash.fill",
                         tint: AppTheme.error,
                         actionTitle: "Wipe All Data",
@@ -116,7 +116,7 @@ internal struct DataManagementView: View {
         case .resetPreferences:
             DestructiveConfirmationCardComponent(
                 title: "Reset preferences?",
-                message: "This resets units, reminder schedule, and history filter settings.",
+                message: "This resets units, reminder schedule, history filter, and HealthKit sync settings.",
                 confirmTitle: "Reset",
                 tint: AppTheme.accent,
                 isDisabled: viewModel.isPerformingAction,
@@ -134,7 +134,7 @@ internal struct DataManagementView: View {
         case .wipeAllData:
             DestructiveConfirmationCardComponent(
                 title: "Wipe all data from this app?",
-                message: "This permanently removes all entries, goal, reminder schedule, and preferences.",
+                message: "This permanently removes all entries, goal, reminder schedule, and preferences including HealthKit sync.",
                 confirmTitle: "Wipe All Data",
                 tint: AppTheme.error,
                 isDisabled: viewModel.isPerformingAction,

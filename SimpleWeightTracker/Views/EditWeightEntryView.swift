@@ -53,6 +53,10 @@ internal struct EditWeightEntryView: View {
                     .padding(14)
                     .background(cardBackground)
 
+                    if viewModel.isPersisted {
+                        healthKitSyncCard
+                    }
+
                     if let errorMessage = viewModel.errorMessage {
                         errorCard(errorMessage)
                     }
@@ -142,7 +146,53 @@ internal struct EditWeightEntryView: View {
             if Task.isCancelled { return }
             await viewModel.observeUnit()
         }
+        .task {
+            if Task.isCancelled { return }
+            await viewModel.refreshSyncStatus()
+        }
         .animation(.easeInOut(duration: 0.2), value: showingDeleteConfirmation)
+    }
+
+    private var healthKitSyncCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: "heart.text.square.fill")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(AppTheme.error)
+                    .frame(width: 30, height: 30)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(AppTheme.error.opacity(0.12))
+                    )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("HealthKit Sync")
+                        .font(.subheadline.weight(.semibold))
+                    Text(viewModel.syncStatusText)
+                        .font(.footnote)
+                        .foregroundStyle(AppTheme.muted)
+                }
+
+                Spacer()
+            }
+
+            if viewModel.syncMetadata == nil {
+                actionButton(
+                    title: viewModel.isSyncingToHealthKit ? "Syncing..." : "Sync Entry to HealthKit",
+                    systemImage: "arrow.triangle.2.circlepath.circle.fill",
+                    tint: AppTheme.success
+                ) {
+                    Task {
+                        if Task.isCancelled { return }
+                        await viewModel.syncPersistedEntryToHealthKit()
+                    }
+                }
+                .disabled(viewModel.isSyncingToHealthKit || viewModel.canSyncToHealthKit == false)
+                .opacity(viewModel.canSyncToHealthKit ? 1 : 0.55)
+            }
+        }
+        .padding(14)
+        .background(cardBackground)
     }
 
     private var cardBackground: some View {

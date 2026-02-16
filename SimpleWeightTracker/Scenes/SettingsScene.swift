@@ -29,6 +29,8 @@ internal struct SettingsScene: View {
                         ReminderSettingsView(serviceContainer: serviceContainer)
                     case .notificationPermissions:
                         NotificationPermissionsView(serviceContainer: serviceContainer)
+                    case .healthKit:
+                        HealthKitSettingsView(serviceContainer: serviceContainer)
                     case .dataManagement:
                         DataManagementView(serviceContainer: serviceContainer)
                     }
