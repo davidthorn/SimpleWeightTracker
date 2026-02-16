@@ -17,29 +17,15 @@
 
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: Date())
-            let dayOffsets = [-5, -4, -3, -2, -1, 0]
-            let entriesPerDay = [4, 5, 6, 4, 5, 6]
-            let valueTemplates: [[Double]] = [
-                [92.6, 92.3, 92.1, 91.9],
-                [91.8, 91.7, 91.5, 91.4, 91.2],
-                [91.1, 90.9, 90.8, 90.7, 90.5, 90.4],
-                [90.2, 90.1, 89.9, 89.8],
-                [89.7, 89.5, 89.4, 89.2, 89.1],
-                [88.9, 88.8, 88.6, 88.5, 88.3, 88.1]
-            ]
-            let minuteOffsets = [0, 170, 390, 710, 930, 1170]
+            let dayCount = 420
+            let dayOffsets = Array(-(dayCount - 1)...0)
 
-            for (dayIndex, dayOffset) in dayOffsets.enumerated() {
+            for dayOffset in dayOffsets {
                 guard let day = calendar.date(byAdding: .day, value: dayOffset, to: today) else {
                     continue
                 }
 
-                let entries = buildEntries(
-                    for: day,
-                    count: entriesPerDay[dayIndex],
-                    values: valueTemplates[dayIndex],
-                    minuteOffsets: minuteOffsets
-                )
+                let entries = buildEntries(for: day, dayOffset: dayOffset, totalDayCount: dayCount)
 
                 for entry in entries {
                     try await weightEntryStore.upsertEntry(entry)
@@ -47,21 +33,31 @@
             }
         }
 
-        private func buildEntries(
-            for day: Date,
-            count: Int,
-            values: [Double],
-            minuteOffsets: [Int]
-        ) -> [WeightEntry] {
+        private func buildEntries(for day: Date, dayOffset: Int, totalDayCount: Int) -> [WeightEntry] {
             let calendar = Calendar.current
             let baseDate = calendar.startOfDay(for: day)
+            let dayIndex = dayOffset + (totalDayCount - 1)
+            let progress = Double(dayIndex) / Double(totalDayCount - 1)
+            let startWeight = 130.0
+            let targetWeight = 85.0
+            let baseValue = startWeight - ((startWeight - targetWeight) * progress)
+            let weeklyVariation = Double((dayIndex % 7) - 3) * 0.04
 
-            return (0..<count).compactMap { index in
-                guard
-                    index < values.count,
-                    index < minuteOffsets.count,
-                    let measuredAt = calendar.date(byAdding: .minute, value: minuteOffsets[index], to: baseDate)
-                else {
+            let morningValue: Double
+            let eveningValue: Double
+            if dayIndex == totalDayCount - 1 {
+                morningValue = targetWeight
+                eveningValue = targetWeight + 0.2
+            } else {
+                morningValue = baseValue + weeklyVariation
+                eveningValue = morningValue + 0.35
+            }
+
+            let minuteOffsets = [450, 1320] // 07:30 and 22:00
+            let values = [morningValue, eveningValue]
+
+            return minuteOffsets.enumerated().compactMap { index, minuteOffset in
+                guard let measuredAt = calendar.date(byAdding: .minute, value: minuteOffset, to: baseDate) else {
                     return nil
                 }
 

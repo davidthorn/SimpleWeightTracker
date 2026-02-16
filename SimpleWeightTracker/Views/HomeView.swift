@@ -30,6 +30,12 @@ internal struct HomeView: View {
                         lastLoggedText: viewModel.heroLastLoggedText
                     )
 
+                    HomeMiniTrendCardComponent(
+                        points: viewModel.sevenDayChartPoints,
+                        summary: viewModel.sevenDaySummary,
+                        unitLabel: viewModel.unitLabelText
+                    )
+
                     VStack(spacing: 10) {
                         NavigationLink(value: HomeRoute.addEntry) {
                             HomeRouteRowComponent(

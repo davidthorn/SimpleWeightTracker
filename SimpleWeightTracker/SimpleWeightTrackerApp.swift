@@ -43,6 +43,14 @@ struct SimpleWeightTrackerApp: App {
                     // Ignore bootstrap errors in debug; app should still launch.
                 }
             }
+
+            if let debugBootstrapService = serviceContainer.goalService as? GoalDebugBootstrapServiceProtocol {
+                do {
+                    try await debugBootstrapService.bootstrapIfNeeded()
+                } catch {
+                    // Ignore bootstrap errors in debug; app should still launch.
+                }
+            }
         #endif
     }
 }

@@ -78,8 +78,12 @@ internal final class ProgressViewModel: ObservableObject {
     }
 
     internal func summary(days: Int) -> ProgressSummary? {
-        let cutoffDate = Calendar.current.date(byAdding: .day, value: -(days - 1), to: Date()) ?? Date()
-        let filtered = entries.filter { $0.measuredAt >= cutoffDate }
+        let window: ChartWindow = days == 7 ? .last7Days : .last30Days
+        return stats(for: window)
+    }
+
+    internal func stats(for window: ChartWindow) -> ProgressSummary? {
+        let filtered = filteredEntries(for: window)
 
         guard
             let latest = filtered.max(by: { $0.measuredAt < $1.measuredAt }),
@@ -102,6 +106,36 @@ internal final class ProgressViewModel: ObservableObject {
             minimum: minimum,
             maximum: maximum
         )
+    }
+
+    internal func chartPoints(for window: ChartWindow) -> [ProgressChartPoint] {
+        let filtered = filteredEntries(for: window)
+        let calendar = Calendar.current
+        let groupedByDay = Dictionary(grouping: filtered) { entry in
+            calendar.startOfDay(for: entry.measuredAt)
+        }
+
+        return groupedByDay
+            .map { day, dayEntries in
+                let total = dayEntries.reduce(0.0) { partialResult, entry in
+                    partialResult + entry.value
+                }
+                let average = total / Double(dayEntries.count)
+
+                return ProgressChartPoint(
+                    timestamp: day,
+                    value: average
+                )
+            }
+            .sorted { $0.timestamp < $1.timestamp }
+    }
+
+    internal func movingAveragePoints(for window: ChartWindow) -> [ProgressChartPoint] {
+        chartPoints(for: window).trailingMovingAverage(windowDays: 7, minimumSampleCount: 3)
+    }
+
+    internal var unitLabelText: String {
+        preferredUnit.shortLabel
     }
 
     internal var goalDistanceText: String {
@@ -134,5 +168,14 @@ internal final class ProgressViewModel: ObservableObject {
                 measuredAt: entry.measuredAt
             )
         }
+    }
+
+    private func filteredEntries(for window: ChartWindow) -> [WeightEntry] {
+        guard let days = window.dayCount else {
+            return entries
+        }
+
+        let cutoffDate = Calendar.current.date(byAdding: .day, value: -(days - 1), to: Date()) ?? Date()
+        return entries.filter { $0.measuredAt >= cutoffDate }
     }
 }

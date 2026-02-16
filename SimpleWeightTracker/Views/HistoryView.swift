@@ -21,7 +21,7 @@ internal struct HistoryView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
+                LazyVStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 10) {
                         NavigationLink(value: HistoryRoute.addEntry) {
                             topAction(title: "Add Entry", systemImage: "plus.circle.fill", tint: AppTheme.accent)
