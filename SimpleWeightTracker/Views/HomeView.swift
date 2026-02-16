@@ -37,7 +37,7 @@ internal struct HomeView: View {
 
                     VStack(spacing: 10) {
                         NavigationLink(value: HomeRoute.addEntry) {
-                            HomeRouteRowComponent(
+                            RouteRowComponent(
                                 title: "Add Weight Entry",
                                 subtitle: "Log a new measurement",
                                 systemImage: "plus.circle.fill",
@@ -48,7 +48,7 @@ internal struct HomeView: View {
 
                         if let latestIdentifier = viewModel.latestEntryIdentifier {
                             NavigationLink(value: HomeRoute.editEntry(latestIdentifier)) {
-                                HomeRouteRowComponent(
+                                RouteRowComponent(
                                     title: "Edit Latest Entry",
                                     subtitle: "Adjust your most recent log",
                                     systemImage: "pencil.circle.fill",
@@ -59,7 +59,7 @@ internal struct HomeView: View {
                         }
 
                         NavigationLink(value: HomeRoute.dayDetail(viewModel.todayIdentifier)) {
-                            HomeRouteRowComponent(
+                            RouteRowComponent(
                                 title: "Today Details",
                                 subtitle: "Review every entry from today",
                                 systemImage: "calendar",
@@ -69,7 +69,7 @@ internal struct HomeView: View {
                         .buttonStyle(.plain)
 
                         NavigationLink(value: HomeRoute.goalSetup) {
-                            HomeRouteRowComponent(
+                            RouteRowComponent(
                                 title: "Set Target Weight",
                                 subtitle: "Define your target and unit",
                                 systemImage: "target",

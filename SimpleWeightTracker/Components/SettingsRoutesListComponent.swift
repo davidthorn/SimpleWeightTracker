@@ -21,7 +21,7 @@ internal struct SettingsRoutesListComponent: View {
     internal var body: some View {
         VStack(spacing: 10) {
             NavigationLink(value: SettingsRoute.goal) {
-                SettingsRouteRowComponent(
+                RouteRowComponent(
                     title: "Goal",
                     subtitle: "Target: gain, lose, or maintain",
                     systemImage: "target",
@@ -31,7 +31,7 @@ internal struct SettingsRoutesListComponent: View {
             .buttonStyle(.plain)
 
             NavigationLink(value: SettingsRoute.units) {
-                SettingsRouteRowComponent(
+                RouteRowComponent(
                     title: "Units",
                     subtitle: "Current: \(unitLabel)",
                     systemImage: "ruler",
@@ -41,7 +41,7 @@ internal struct SettingsRoutesListComponent: View {
             .buttonStyle(.plain)
 
             NavigationLink(value: SettingsRoute.reminders) {
-                SettingsRouteRowComponent(
+                RouteRowComponent(
                     title: "Reminder Schedule",
                     subtitle: "Configure reminder frequency",
                     systemImage: "bell.badge.fill",
@@ -51,7 +51,7 @@ internal struct SettingsRoutesListComponent: View {
             .buttonStyle(.plain)
 
             NavigationLink(value: SettingsRoute.notificationPermissions) {
-                SettingsRouteRowComponent(
+                RouteRowComponent(
                     title: "Notification Permissions",
                     subtitle: "Status: \(reminderStatusText)",
                     systemImage: "bell.circle.fill",
@@ -61,7 +61,7 @@ internal struct SettingsRoutesListComponent: View {
             .buttonStyle(.plain)
 
             NavigationLink(value: SettingsRoute.healthKit) {
-                SettingsRouteRowComponent(
+                RouteRowComponent(
                     title: "HealthKit",
                     subtitle: healthKitSubtitle,
                     systemImage: "heart.text.square.fill",
@@ -71,7 +71,7 @@ internal struct SettingsRoutesListComponent: View {
             .buttonStyle(.plain)
 
             NavigationLink(value: SettingsRoute.dataManagement) {
-                SettingsRouteRowComponent(
+                RouteRowComponent(
                     title: "Data Management",
                     subtitle: "Reset goals and preferences",
                     systemImage: "trash.circle.fill",

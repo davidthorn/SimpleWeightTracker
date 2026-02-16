@@ -1,17 +1,24 @@
 //
-//  HomeRouteRowComponent.swift
+//  RouteRowComponent.swift
 //  SimpleWeightTracker
 //
-//  Created by David Thorn on 15.02.2026.
+//  Created by David Thorn on 16.02.2026.
 //
 
 import SwiftUI
 
-internal struct HomeRouteRowComponent: View {
-    internal let title: String
-    internal let subtitle: String
-    internal let systemImage: String
-    internal let tint: Color
+internal struct RouteRowComponent: View {
+    private let title: String
+    private let subtitle: String
+    private let systemImage: String
+    private let tint: Color
+
+    internal init(title: String, subtitle: String, systemImage: String, tint: Color) {
+        self.title = title
+        self.subtitle = subtitle
+        self.systemImage = systemImage
+        self.tint = tint
+    }
 
     internal var body: some View {
         HStack(spacing: 12) {
@@ -28,7 +35,6 @@ internal struct HomeRouteRowComponent: View {
                 Text(title)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.primary)
-
                 Text(subtitle)
                     .font(.caption)
                     .foregroundStyle(AppTheme.muted)
@@ -54,7 +60,7 @@ internal struct HomeRouteRowComponent: View {
 
 #if DEBUG
     #Preview {
-        HomeRouteRowComponent(
+        RouteRowComponent(
             title: "Add Weight Entry",
             subtitle: "Log a new measurement",
             systemImage: "plus.circle.fill",
