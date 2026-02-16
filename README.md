@@ -50,6 +50,7 @@ If you use, modify, or distribute this project (or derivative work), you must fo
 
 - Swift 6
 - SwiftUI
+- HealthKit integration (optional, user-controlled)
 - Actor-backed stores
 - Async/await + AsyncStream
 - File-system JSON persistence in app Documents directory
@@ -117,6 +118,16 @@ This keeps future module or watch-sharing paths predictable.
 5. Stores persist and publish updates through AsyncStream.
 6. ViewModels react and publish new UI state.
 7. SwiftUI re-renders.
+
+## HealthKit Sync (Optional)
+
+SimpleWeightTracker can sync weight entries with Apple HealthKit when the user enables this in Settings.
+
+- HealthKit sync is opt-in and disabled by default.
+- Users can enable automatic write sync for new weight entries from the HealthKit settings screen.
+- The app surfaces HealthKit read/write authorization status so users can see whether access is granted.
+- Users can change this permission at any time in iOS Settings.
+- Core app tracking works normally even if HealthKit sync is not enabled.
 
 ## Why This Is Good for Junior Developers
 
