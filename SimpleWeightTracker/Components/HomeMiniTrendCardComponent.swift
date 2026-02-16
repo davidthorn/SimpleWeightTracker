@@ -9,11 +9,21 @@ import Charts
 import SwiftUI
 
 internal struct HomeMiniTrendCardComponent: View {
-    internal let points: [ProgressChartPoint]
-    internal let summary: ProgressSummary?
-    internal let unitLabel: String
+    @StateObject private var viewModel: HomeMiniTrendCardViewModel
+    internal let entries: [WeightEntry]
+    internal let preferredUnit: WeightUnit
+
+    internal init(entries: [WeightEntry], preferredUnit: WeightUnit) {
+        let vm = HomeMiniTrendCardViewModel()
+        _viewModel = StateObject(wrappedValue: vm)
+        self.entries = entries
+        self.preferredUnit = preferredUnit
+    }
 
     internal var body: some View {
+        let points = viewModel.sevenDayChartPoints(from: entries, preferredUnit: preferredUnit)
+        let summary = viewModel.summary(from: points)
+        let unitLabel = viewModel.unitLabel(for: preferredUnit)
         let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
 
         VStack(alignment: .leading, spacing: 10) {
@@ -65,9 +75,9 @@ internal struct HomeMiniTrendCardComponent: View {
 
             if let summary {
                 HStack(spacing: 8) {
-                    statChip(title: "Low", value: formatted(summary.minimum), tint: AppTheme.success)
-                    statChip(title: "Avg", value: formatted(summary.average), tint: AppTheme.accent)
-                    statChip(title: "High", value: formatted(summary.maximum), tint: AppTheme.warning)
+                    statChip(title: "Low", value: formatted(summary.minimum, unitLabel: unitLabel), tint: AppTheme.success)
+                    statChip(title: "Avg", value: formatted(summary.average, unitLabel: unitLabel), tint: AppTheme.accent)
+                    statChip(title: "High", value: formatted(summary.maximum, unitLabel: unitLabel), tint: AppTheme.warning)
                 }
             }
         }
@@ -83,7 +93,7 @@ internal struct HomeMiniTrendCardComponent: View {
         )
     }
 
-    private func formatted(_ value: Double) -> String {
+    private func formatted(_ value: Double, unitLabel: String) -> String {
         String(format: "%.1f %@", value, unitLabel)
     }
 
@@ -116,14 +126,13 @@ internal struct HomeMiniTrendCardComponent: View {
     #Preview {
         let now = Date()
         HomeMiniTrendCardComponent(
-            points: [
-                ProgressChartPoint(timestamp: now.addingTimeInterval(-6 * 86_400), value: 89.8),
-                ProgressChartPoint(timestamp: now.addingTimeInterval(-4 * 86_400), value: 89.4),
-                ProgressChartPoint(timestamp: now.addingTimeInterval(-2 * 86_400), value: 89.1),
-                ProgressChartPoint(timestamp: now, value: 88.9)
+            entries: [
+                WeightEntry(id: UUID(), value: 89.8, unit: .kilograms, measuredAt: now.addingTimeInterval(-6 * 86_400)),
+                WeightEntry(id: UUID(), value: 89.4, unit: .kilograms, measuredAt: now.addingTimeInterval(-4 * 86_400)),
+                WeightEntry(id: UUID(), value: 89.1, unit: .kilograms, measuredAt: now.addingTimeInterval(-2 * 86_400)),
+                WeightEntry(id: UUID(), value: 88.9, unit: .kilograms, measuredAt: now)
             ],
-            summary: ProgressSummary(netChange: -0.9, average: 89.3, minimum: 88.9, maximum: 89.8),
-            unitLabel: "kg"
+            preferredUnit: .kilograms
         )
         .padding()
         .background(AppTheme.pageGradient)

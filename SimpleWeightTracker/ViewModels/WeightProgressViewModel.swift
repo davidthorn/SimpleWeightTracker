@@ -1,5 +1,5 @@
 //
-//  ProgressViewModel.swift
+//  WeightProgressViewModel.swift
 //  SimpleWeightTracker
 //
 //  Created by David Thorn on 15.02.2026.
@@ -9,7 +9,7 @@ import Combine
 import Foundation
 
 @MainActor
-internal final class ProgressViewModel: ObservableObject {
+internal final class WeightProgressViewModel: ObservableObject {
     @Published internal private(set) var entries: [WeightEntry]
     @Published internal private(set) var goal: WeightGoal?
     @Published internal private(set) var errorMessage: String?

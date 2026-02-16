@@ -9,15 +9,13 @@ import SwiftUI
 
 internal struct HistoryScene: View {
     private let serviceContainer: ServiceContainerProtocol
-    @State private var path: [HistoryRoute]
 
     internal init(serviceContainer: ServiceContainerProtocol) {
         self.serviceContainer = serviceContainer
-        _path = State(initialValue: [])
     }
 
     internal var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack {
             HistoryView(serviceContainer: serviceContainer)
                 .navigationDestination(for: HistoryRoute.self) { route in
                     switch route {

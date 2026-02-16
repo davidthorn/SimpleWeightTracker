@@ -1,5 +1,5 @@
 //
-//  ProgressView.swift
+//  WeightProgressView.swift
 //  SimpleWeightTracker
 //
 //  Created by David Thorn on 15.02.2026.
@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-internal struct ProgressView: View {
-    @StateObject private var viewModel: ProgressViewModel
+internal struct WeightProgressView: View {
+    @StateObject private var viewModel: WeightProgressViewModel
 
     internal init(serviceContainer: ServiceContainerProtocol) {
-        let vm = ProgressViewModel(serviceContainer: serviceContainer)
+        let vm = WeightProgressViewModel(serviceContainer: serviceContainer)
         _viewModel = StateObject(wrappedValue: vm)
     }
 
@@ -156,7 +156,7 @@ internal struct ProgressView: View {
 #if DEBUG
     #Preview {
         NavigationStack {
-            ProgressView(serviceContainer: PreviewServiceContainer())
+            WeightProgressView(serviceContainer: PreviewServiceContainer())
         }
     }
 #endif

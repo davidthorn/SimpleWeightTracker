@@ -26,7 +26,7 @@ internal struct ContentView: View {
                     Label("History", systemImage: "clock.arrow.circlepath")
                 }
 
-            ProgressScene(serviceContainer: serviceContainer)
+            WeightProgressScene(serviceContainer: serviceContainer)
                 .tabItem {
                     Label("Progress", systemImage: "chart.line.uptrend.xyaxis")
                 }

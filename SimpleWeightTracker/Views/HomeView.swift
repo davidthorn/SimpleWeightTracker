@@ -31,9 +31,8 @@ internal struct HomeView: View {
                     )
 
                     HomeMiniTrendCardComponent(
-                        points: viewModel.sevenDayChartPoints,
-                        summary: viewModel.sevenDaySummary,
-                        unitLabel: viewModel.unitLabelText
+                        entries: viewModel.entries,
+                        preferredUnit: viewModel.preferredUnit
                     )
 
                     VStack(spacing: 10) {
