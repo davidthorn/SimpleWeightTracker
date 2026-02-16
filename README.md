@@ -18,7 +18,25 @@ If you use, modify, or distribute this project (or derivative work), you must fo
 
 ## Screenshots
 
-Screenshots will be added as the staging UI stabilizes.
+| Home | Add Entry |
+| --- | --- |
+| ![Home](Screenshots/Home.png) | ![Add Entry](Screenshots/Add-Entry.png) |
+
+| History | Day Summary |
+| --- | --- |
+| ![History](Screenshots/History.png) | ![Day Summary](Screenshots/DaySummary.png) |
+
+| Progress (7 Day) | Progress (30 Day) |
+| --- | --- |
+| ![Progress 7 Day](Screenshots/Progress-7day.png) | ![Progress 30 Day](Screenshots/Progress-30day.png) |
+
+| Goal Setup | Settings |
+| --- | --- |
+| ![Goal Setup](Screenshots/Goal-Setup.png) | ![Settings](Screenshots/Settings.png) |
+
+| Settings Reminders | Settings HealthKit |
+| --- | --- |
+| ![Settings Reminders](Screenshots/Settings-Reminders.png) | ![Settings HealthKit](Screenshots/Settings-Healthkit.png) |
 
 ## Project Intent
 
