@@ -11,6 +11,7 @@ internal struct ActionButtonComponent: View {
     private let title: String
     private let systemImage: String
     private let tint: Color
+    private let isCancelStyle: Bool
     private let font: Font
     private let verticalPadding: CGFloat
     private let cornerRadius: CGFloat
@@ -20,6 +21,7 @@ internal struct ActionButtonComponent: View {
         title: String,
         systemImage: String,
         tint: Color,
+        isCancelStyle: Bool = false,
         font: Font = .subheadline.weight(.semibold),
         verticalPadding: CGFloat = 12,
         cornerRadius: CGFloat = 12,
@@ -28,6 +30,7 @@ internal struct ActionButtonComponent: View {
         self.title = title
         self.systemImage = systemImage
         self.tint = tint
+        self.isCancelStyle = isCancelStyle
         self.font = font
         self.verticalPadding = verticalPadding
         self.cornerRadius = cornerRadius
@@ -38,12 +41,16 @@ internal struct ActionButtonComponent: View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .font(font)
-                .foregroundStyle(.white)
+                .foregroundStyle(isCancelStyle ? AppTheme.muted : .white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, verticalPadding)
                 .background(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(tint)
+                        .fill(isCancelStyle ? Color.white.opacity(0.82) : tint)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                .stroke(isCancelStyle ? AppTheme.border : .clear, lineWidth: 1)
+                        )
                 )
                 .contentShape(Rectangle())
         }

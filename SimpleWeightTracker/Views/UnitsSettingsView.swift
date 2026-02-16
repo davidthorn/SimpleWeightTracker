@@ -11,11 +11,13 @@ internal struct UnitsSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: UnitsSettingsViewModel
     @State private var showingDeleteConfirmation: Bool
+    @State private var isDeletingPreference: Bool
 
     internal init(serviceContainer: ServiceContainerProtocol) {
         let vm = UnitsSettingsViewModel(serviceContainer: serviceContainer)
         _viewModel = StateObject(wrappedValue: vm)
         _showingDeleteConfirmation = State(initialValue: false)
+        _isDeletingPreference = State(initialValue: false)
     }
 
     internal var body: some View {
@@ -49,6 +51,37 @@ internal struct UnitsSettingsView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
             }
+
+            if showingDeleteConfirmation {
+                Color.black.opacity(0.16)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        if isDeletingPreference { return }
+                        showingDeleteConfirmation = false
+                    }
+
+                DestructiveConfirmationCardComponent(
+                    title: "Delete unit preference?",
+                    message: "This removes your saved preference and restores the app default.",
+                    confirmTitle: "Delete Preference",
+                    tint: AppTheme.error,
+                    isDisabled: isDeletingPreference,
+                    onCancel: {
+                        showingDeleteConfirmation = false
+                    },
+                    onConfirm: {
+                        Task {
+                            if Task.isCancelled { return }
+                            isDeletingPreference = true
+                            await viewModel.deletePreference()
+                            isDeletingPreference = false
+                            dismiss()
+                        }
+                    }
+                )
+                .padding(.horizontal, 16)
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+            }
         }
         .tint(AppTheme.accent)
         .navigationTitle("Units")
@@ -60,16 +93,7 @@ internal struct UnitsSettingsView: View {
             if Task.isCancelled { return }
             await viewModel.observeUnit()
         }
-        .confirmationDialog("Are you sure you want to delete this?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                Task {
-                    if Task.isCancelled { return }
-                    await viewModel.deletePreference()
-                    dismiss()
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
+        .animation(.easeInOut(duration: 0.2), value: showingDeleteConfirmation)
     }
 }
 

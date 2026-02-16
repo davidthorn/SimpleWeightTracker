@@ -39,33 +39,24 @@ internal struct DestructiveConfirmationCardComponent: View {
             }
 
             HStack(spacing: 10) {
-                Button("Cancel", action: onCancel)
-                    .buttonStyle(.plain)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(AppTheme.muted)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 11)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color.white.opacity(0.82))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(AppTheme.border, lineWidth: 1)
-                            )
-                    )
+                ActionButtonComponent(
+                    title: "Cancel",
+                    systemImage: "xmark",
+                    tint: AppTheme.muted,
+                    isCancelStyle: true,
+                    verticalPadding: 11,
+                    action: onCancel
+                )
                     .disabled(isDisabled)
 
-                Button(confirmTitle, action: onConfirm)
-                    .buttonStyle(.plain)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 11)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(tint)
-                            .opacity(isDisabled ? 0.45 : 1)
-                    )
+                ActionButtonComponent(
+                    title: confirmTitle,
+                    systemImage: "trash.fill",
+                    tint: tint,
+                    verticalPadding: 11,
+                    action: onConfirm
+                )
+                    .opacity(isDisabled ? 0.45 : 1)
                     .disabled(isDisabled)
             }
         }

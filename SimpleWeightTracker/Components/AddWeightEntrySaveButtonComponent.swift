@@ -15,17 +15,11 @@ internal struct AddWeightEntrySaveButtonComponent: View {
     }
 
     internal var body: some View {
-        Button(action: action) {
-            Label("Save Entry", systemImage: "checkmark.circle.fill")
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(.white)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(AppTheme.accent)
+        ActionButtonComponent(
+            title: "Save Entry",
+            systemImage: "checkmark.circle.fill",
+            tint: AppTheme.accent,
+            action: action
         )
     }
 }

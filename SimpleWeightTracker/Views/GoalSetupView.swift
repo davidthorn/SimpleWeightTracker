@@ -11,11 +11,13 @@ internal struct GoalSetupView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: GoalSetupViewModel
     @State private var showingDeleteConfirmation: Bool
+    @State private var isDeletingGoal: Bool
 
     internal init(serviceContainer: ServiceContainerProtocol) {
         let vm = GoalSetupViewModel(serviceContainer: serviceContainer)
         _viewModel = StateObject(wrappedValue: vm)
         _showingDeleteConfirmation = State(initialValue: false)
+        _isDeletingGoal = State(initialValue: false)
     }
 
     internal var body: some View {
@@ -61,6 +63,41 @@ internal struct GoalSetupView: View {
                 .padding(.vertical, 12)
             }
             .scrollDismissesKeyboard(.interactively)
+
+            if showingDeleteConfirmation {
+                Color.black.opacity(0.16)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        if isDeletingGoal { return }
+                        showingDeleteConfirmation = false
+                    }
+
+                DestructiveConfirmationCardComponent(
+                    title: "Delete current goal?",
+                    message: "This removes your target value but keeps all logged weight entries.",
+                    confirmTitle: "Delete Goal",
+                    tint: AppTheme.error,
+                    isDisabled: isDeletingGoal,
+                    onCancel: {
+                        showingDeleteConfirmation = false
+                    },
+                    onConfirm: {
+                        Task {
+                            if Task.isCancelled { return }
+                            isDeletingGoal = true
+                            let didDelete = await viewModel.deleteGoal()
+                            isDeletingGoal = false
+                            if didDelete {
+                                dismiss()
+                            } else {
+                                showingDeleteConfirmation = false
+                            }
+                        }
+                    }
+                )
+                .padding(.horizontal, 16)
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+            }
         }
         .tint(AppTheme.accent)
         .navigationTitle("Goal Setup")
@@ -72,18 +109,7 @@ internal struct GoalSetupView: View {
             if Task.isCancelled { return }
             await viewModel.observeUnit()
         }
-        .confirmationDialog("Are you sure you want to delete this?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                Task {
-                    if Task.isCancelled { return }
-                    let didDelete = await viewModel.deleteGoal()
-                    if didDelete {
-                        dismiss()
-                    }
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
+        .animation(.easeInOut(duration: 0.2), value: showingDeleteConfirmation)
     }
 }
 

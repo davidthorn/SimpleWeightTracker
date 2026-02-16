@@ -39,19 +39,14 @@ internal struct DataManagementActionCardComponent: View {
                 Spacer()
             }
 
-            Button(action: action) {
-                Label(actionTitle, systemImage: "trash.fill")
-                    .font(.subheadline.weight(.semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 11)
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.white)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(tint)
-                    .opacity(isDisabled ? 0.45 : 1)
+            ActionButtonComponent(
+                title: actionTitle,
+                systemImage: "trash.fill",
+                tint: tint,
+                verticalPadding: 11,
+                action: action
             )
+            .opacity(isDisabled ? 0.45 : 1)
             .disabled(isDisabled)
         }
         .padding(14)
