@@ -43,8 +43,8 @@ internal struct GoalSetupView: View {
                         FormErrorCardComponent(message: errorMessage)
                     }
 
-                    GoalSetupActionButtonsComponent(
-                        canSave: viewModel.canSave,
+                    FormActionButtonsComponent(
+                        goalCanSave: viewModel.canSave,
                         isPersisted: viewModel.isPersisted,
                         hasChanges: viewModel.hasChanges,
                         onSave: {

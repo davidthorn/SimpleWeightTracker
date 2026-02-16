@@ -45,8 +45,8 @@ internal struct ReminderSettingsView: View {
                         FormErrorCardComponent(message: errorMessage)
                     }
 
-                    ReminderSettingsActionButtonsComponent(
-                        hasChanges: viewModel.hasChanges,
+                    FormActionButtonsComponent(
+                        reminderHasChanges: viewModel.hasChanges,
                         hasPersistedSchedule: viewModel.initialSchedule != nil,
                         onSave: {
                             Task {

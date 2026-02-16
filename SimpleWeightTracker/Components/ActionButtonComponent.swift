@@ -46,7 +46,7 @@ internal struct ActionButtonComponent: View {
                 .padding(.vertical, verticalPadding)
                 .background(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(isCancelStyle ? Color.white.opacity(0.82) : tint)
+                        .fill(isCancelStyle ? AppTheme.secondaryActionBackground : tint)
                         .overlay(
                             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                                 .stroke(isCancelStyle ? AppTheme.border : .clear, lineWidth: 1)

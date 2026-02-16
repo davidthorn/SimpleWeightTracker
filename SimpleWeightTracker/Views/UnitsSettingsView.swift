@@ -36,8 +36,8 @@ internal struct UnitsSettingsView: View {
 
                     UnitsSettingsFormCardComponent(selectedUnit: $viewModel.selectedUnit)
 
-                    UnitsSettingsActionButtonsComponent(
-                        hasChanges: viewModel.hasChanges,
+                    FormActionButtonsComponent(
+                        unitsHasChanges: viewModel.hasChanges,
                         onSave: {
                             Task {
                                 if Task.isCancelled { return }

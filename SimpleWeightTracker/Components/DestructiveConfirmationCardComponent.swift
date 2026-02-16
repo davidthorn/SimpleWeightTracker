@@ -63,7 +63,7 @@ internal struct DestructiveConfirmationCardComponent: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(AppTheme.cardBackground)
+                .fill(AppTheme.cardBackgroundSolid)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .stroke(tint.opacity(0.22), lineWidth: 1)
