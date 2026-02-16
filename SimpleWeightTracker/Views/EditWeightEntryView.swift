@@ -58,12 +58,12 @@ internal struct EditWeightEntryView: View {
                     }
 
                     if let errorMessage = viewModel.errorMessage {
-                        errorCard(errorMessage)
+                        FormErrorCardComponent(message: errorMessage)
                     }
 
                     VStack(spacing: 10) {
                         if viewModel.canSave {
-                            actionButton(
+                            ActionButtonComponent(
                                 title: "Save Changes",
                                 systemImage: "checkmark.circle.fill",
                                 tint: AppTheme.accent
@@ -79,7 +79,7 @@ internal struct EditWeightEntryView: View {
                         }
 
                         if viewModel.isPersisted && viewModel.hasChanges {
-                            actionButton(
+                            ActionButtonComponent(
                                 title: "Reset",
                                 systemImage: "arrow.uturn.backward.circle.fill",
                                 tint: AppTheme.warning
@@ -89,7 +89,7 @@ internal struct EditWeightEntryView: View {
                         }
 
                         if viewModel.isPersisted {
-                            actionButton(
+                            ActionButtonComponent(
                                 title: "Delete Entry",
                                 systemImage: "trash.fill",
                                 tint: AppTheme.error
@@ -177,7 +177,7 @@ internal struct EditWeightEntryView: View {
             }
 
             if viewModel.syncMetadata == nil {
-                actionButton(
+                ActionButtonComponent(
                     title: viewModel.isSyncingToHealthKit ? "Syncing..." : "Sync Entry to HealthKit",
                     systemImage: "arrow.triangle.2.circlepath.circle.fill",
                     tint: AppTheme.success
@@ -247,37 +247,6 @@ internal struct EditWeightEntryView: View {
         Text(title.uppercased())
             .font(.caption.weight(.bold))
             .foregroundStyle(AppTheme.muted)
-    }
-
-    private func errorCard(_ message: String) -> some View {
-        Text(message)
-            .font(.footnote)
-            .foregroundStyle(AppTheme.error)
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(AppTheme.error.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(AppTheme.error.opacity(0.24), lineWidth: 1)
-                    )
-            )
-    }
-
-    private func actionButton(title: String, systemImage: String, tint: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: systemImage)
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(.white)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(tint)
-        )
     }
 }
 
