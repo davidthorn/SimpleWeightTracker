@@ -12,6 +12,7 @@ internal struct ServiceContainer: ServiceContainerProtocol {
     internal let goalService: GoalServiceProtocol
     internal let reminderService: ReminderServiceProtocol
     internal let unitsPreferenceService: UnitsPreferenceServiceProtocol
+    internal let historyFilterService: HistoryFilterServiceProtocol
 
     internal init(
         weightEntryStore: WeightEntryStoreProtocol = WeightEntryStore(),
@@ -21,5 +22,6 @@ internal struct ServiceContainer: ServiceContainerProtocol {
         goalService = GoalService(goalStore: goalStore)
         reminderService = ReminderService()
         unitsPreferenceService = UnitsPreferenceService()
+        historyFilterService = HistoryFilterService()
     }
 }

@@ -14,25 +14,36 @@ internal final class HistoryFilterViewModel: ObservableObject {
     @Published internal var customStartDate: Date
     @Published internal var customEndDate: Date
 
-    internal init() {
-        selection = .last30Days
-        let now = Date()
-        customEndDate = now
-        customStartDate = Calendar.current.date(byAdding: .day, value: -14, to: now) ?? now
+    private let historyFilterService: HistoryFilterServiceProtocol
+
+    internal init(serviceContainer: ServiceContainerProtocol) {
+        historyFilterService = serviceContainer.historyFilterService
+        let initialConfiguration = HistoryFilterConfiguration.defaultValue()
+        selection = initialConfiguration.selection
+        customStartDate = initialConfiguration.customStartDate
+        customEndDate = initialConfiguration.customEndDate
     }
 
     internal var selectedRange: ClosedRange<Date> {
-        let endOfToday = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: Date()) ?? Date()
+        makeConfiguration().resolvedRange()
+    }
 
-        switch selection {
-        case .last7Days:
-            let start = Calendar.current.date(byAdding: .day, value: -6, to: endOfToday) ?? endOfToday
-            return start...endOfToday
-        case .last30Days:
-            let start = Calendar.current.date(byAdding: .day, value: -29, to: endOfToday) ?? endOfToday
-            return start...endOfToday
-        case .custom:
-            return customStartDate...customEndDate
-        }
+    internal func load() async {
+        let configuration = await historyFilterService.fetchConfiguration()
+        selection = configuration.selection
+        customStartDate = configuration.customStartDate
+        customEndDate = configuration.customEndDate
+    }
+
+    internal func persist() async {
+        await historyFilterService.updateConfiguration(makeConfiguration())
+    }
+
+    private func makeConfiguration() -> HistoryFilterConfiguration {
+        HistoryFilterConfiguration(
+            selection: selection,
+            customStartDate: customStartDate,
+            customEndDate: customEndDate
+        )
     }
 }

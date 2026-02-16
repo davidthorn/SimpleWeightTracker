@@ -88,6 +88,10 @@ internal struct HistoryView: View {
             if Task.isCancelled { return }
             await viewModel.observeUnit()
         }
+        .task {
+            if Task.isCancelled { return }
+            await viewModel.observeFilter()
+        }
     }
 }
 

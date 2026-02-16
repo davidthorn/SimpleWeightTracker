@@ -10,8 +10,8 @@ import SwiftUI
 internal struct HistoryFilterView: View {
     @StateObject private var viewModel: HistoryFilterViewModel
 
-    internal init() {
-        let vm = HistoryFilterViewModel()
+    internal init(serviceContainer: ServiceContainerProtocol) {
+        let vm = HistoryFilterViewModel(serviceContainer: serviceContainer)
         _viewModel = StateObject(wrappedValue: vm)
     }
 
@@ -71,6 +71,28 @@ internal struct HistoryFilterView: View {
         }
         .tint(AppTheme.accent)
         .navigationTitle("History Filter")
+        .task {
+            if Task.isCancelled { return }
+            await viewModel.load()
+        }
+        .onChange(of: viewModel.selection) { _ in
+            Task {
+                if Task.isCancelled { return }
+                await viewModel.persist()
+            }
+        }
+        .onChange(of: viewModel.customStartDate) { _ in
+            Task {
+                if Task.isCancelled { return }
+                await viewModel.persist()
+            }
+        }
+        .onChange(of: viewModel.customEndDate) { _ in
+            Task {
+                if Task.isCancelled { return }
+                await viewModel.persist()
+            }
+        }
     }
 
     private var cardBackground: some View {
@@ -145,7 +167,7 @@ internal struct HistoryFilterView: View {
 #if DEBUG
     #Preview {
         NavigationStack {
-            HistoryFilterView()
+            HistoryFilterView(serviceContainer: PreviewServiceContainer())
         }
     }
 #endif

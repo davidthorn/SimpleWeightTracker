@@ -15,6 +15,7 @@ internal final class HistoryViewModel: ObservableObject {
 
     private let weightEntryService: WeightEntryServiceProtocol
     private let unitsPreferenceService: UnitsPreferenceServiceProtocol
+    private let historyFilterService: HistoryFilterServiceProtocol
     private var sourceEntries: [WeightEntry]
     private var activeFilterRange: ClosedRange<Date>?
     private var preferredUnit: WeightUnit
@@ -22,6 +23,7 @@ internal final class HistoryViewModel: ObservableObject {
     internal init(serviceContainer: ServiceContainerProtocol) {
         weightEntryService = serviceContainer.weightEntryService
         unitsPreferenceService = serviceContainer.unitsPreferenceService
+        historyFilterService = serviceContainer.historyFilterService
         dayGroups = []
         errorMessage = nil
         sourceEntries = []
@@ -29,13 +31,15 @@ internal final class HistoryViewModel: ObservableObject {
         preferredUnit = .kilograms
     }
 
-    internal func load(filterRange: ClosedRange<Date>? = nil) async {
+    internal func load() async {
         do {
             async let fetchedEntries = weightEntryService.fetchEntries()
             async let fetchedPreferredUnit = unitsPreferenceService.fetchUnit()
+            async let fetchedFilterConfiguration = historyFilterService.fetchConfiguration()
             sourceEntries = try await fetchedEntries
             preferredUnit = await fetchedPreferredUnit
-            activeFilterRange = filterRange
+            let filterConfiguration = await fetchedFilterConfiguration
+            activeFilterRange = filterConfiguration.resolvedRange()
             applyGrouping()
         } catch {
             errorMessage = error.localizedDescription
@@ -58,6 +62,14 @@ internal final class HistoryViewModel: ObservableObject {
         let stream = await unitsPreferenceService.observeUnit()
         for await snapshot in stream {
             preferredUnit = snapshot
+            applyGrouping()
+        }
+    }
+
+    internal func observeFilter() async {
+        let stream = await historyFilterService.observeConfiguration()
+        for await snapshot in stream {
+            activeFilterRange = snapshot.resolvedRange()
             applyGrouping()
         }
     }

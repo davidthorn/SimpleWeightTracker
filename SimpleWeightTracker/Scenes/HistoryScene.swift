@@ -26,7 +26,7 @@ internal struct HistoryScene: View {
                     case .entryDetail(let entryIdentifier):
                         EntryDetailView(serviceContainer: serviceContainer, entryIdentifier: entryIdentifier)
                     case .filter:
-                        HistoryFilterView()
+                        HistoryFilterView(serviceContainer: serviceContainer)
                     }
                 }
         }

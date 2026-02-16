@@ -13,6 +13,7 @@
         internal let goalService: GoalServiceProtocol
         internal let reminderService: ReminderServiceProtocol
         internal let unitsPreferenceService: UnitsPreferenceServiceProtocol
+        internal let historyFilterService: HistoryFilterServiceProtocol
 
         internal init() {
             let previewFilePathResolver = StoreFilePathResolver()
@@ -33,6 +34,7 @@
             goalService = GoalService(goalStore: previewGoalStore)
             reminderService = ReminderService(scheduleKey: "preview_weight_reminder_schedule")
             unitsPreferenceService = UnitsPreferenceService(key: "preview_weight_unit_preference")
+            historyFilterService = HistoryFilterService(key: "preview_weight_history_filter_configuration")
         }
     }
 #endif
