@@ -36,8 +36,10 @@ internal struct HistoryFilterView: View {
                         customEndDate: $viewModel.customEndDate
                     )
 
-                    HistoryFilterSelectedRangeCardComponent(
-                        selectedRange: viewModel.selectedRange
+                    SimpleDateRangeSummaryCard(
+                        startDate: viewModel.selectedRange.lowerBound,
+                        endDate: viewModel.selectedRange.upperBound,
+                        tint: AppTheme.warning
                     )
                 }
                 .padding(.horizontal, 16)

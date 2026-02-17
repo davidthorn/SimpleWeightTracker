@@ -34,45 +34,51 @@ internal struct DataManagementView: View {
 
                     sectionTitle("Targeted Actions")
 
-                    DataManagementActionCardComponent(
+                    SimpleInfoActionCard(
                         title: "Delete Goal",
                         subtitle: "Removes your current target while keeping historical entries.",
                         systemImage: "target",
                         tint: AppTheme.warning,
                         actionTitle: "Delete Goal",
-                        isDisabled: viewModel.isPerformingAction
+                        actionSystemImage: "trash.fill",
+                        actionTint: AppTheme.warning,
+                        isActionEnabled: viewModel.isPerformingAction == false
                     ) {
                         pendingConfirmationAction = .clearGoal
                     }
 
-                    DataManagementActionCardComponent(
+                    SimpleInfoActionCard(
                         title: "Reset Preferences",
                         subtitle: "Resets units, reminder schedule, history filter, and HealthKit sync settings.",
                         systemImage: "slider.horizontal.3",
                         tint: AppTheme.accent,
                         actionTitle: "Reset Preferences",
-                        isDisabled: viewModel.isPerformingAction
+                        actionSystemImage: "trash.fill",
+                        actionTint: AppTheme.accent,
+                        isActionEnabled: viewModel.isPerformingAction == false
                     ) {
                         pendingConfirmationAction = .resetPreferences
                     }
 
                     sectionTitle("Danger Zone")
 
-                    DataManagementActionCardComponent(
+                    SimpleInfoActionCard(
                         title: "Wipe All Data",
                         subtitle: "Permanently removes all entries, goal, reminder schedule, and preferences including HealthKit sync.",
                         systemImage: "trash.fill",
                         tint: AppTheme.error,
                         actionTitle: "Wipe All Data",
-                        isDisabled: viewModel.isPerformingAction
+                        actionSystemImage: "trash.fill",
+                        actionTint: AppTheme.error,
+                        isActionEnabled: viewModel.isPerformingAction == false
                     ) {
                         pendingConfirmationAction = .wipeAllData
                     }
 
                     if let message = viewModel.message {
-                        DataManagementFeedbackCardComponent(
+                        SimpleFeedbackCard(
                             message: message,
-                            isError: viewModel.isErrorMessage
+                            tint: viewModel.isErrorMessage ? AppTheme.error : AppTheme.success
                         )
                     }
                 }

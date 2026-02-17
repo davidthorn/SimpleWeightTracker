@@ -57,42 +57,44 @@ internal struct NotificationPermissionsView: View {
     private var permissionStateCard: some View {
         switch viewModel.status {
         case .notDetermined:
-            NotificationPermissionStateCardComponent(
+            SimpleInfoActionCard(
                 title: "Allow Notifications",
-                message: "Enable reminders so the app can nudge you to log your weight during the day.",
+                subtitle: "Enable reminders so the app can nudge you to log your weight during the day.",
                 systemImage: "hand.raised.fill",
                 tint: AppTheme.accent,
                 actionTitle: "Request Permission",
                 actionSystemImage: "bell.badge.fill",
-                actionTint: AppTheme.accent
-            ) {
-                Task {
-                    if Task.isCancelled { return }
-                    await viewModel.requestAuthorization()
+                actionTint: AppTheme.accent,
+                action: {
+                    Task {
+                        if Task.isCancelled { return }
+                        await viewModel.requestAuthorization()
+                    }
                 }
-            }
+            )
         case .authorized, .provisional:
-            NotificationPermissionStateCardComponent(
+            SimpleInfoActionCard(
                 title: "Permission Approved",
-                message: "Notifications are enabled. Your reminders can be delivered as configured.",
+                subtitle: "Notifications are enabled. Your reminders can be delivered as configured.",
                 systemImage: "checkmark.seal.fill",
                 tint: AppTheme.success
-            ) {}
+            )
         case .denied:
-            NotificationPermissionStateCardComponent(
+            SimpleInfoActionCard(
                 title: "Permission Denied",
-                message: "Notifications are currently blocked. Open Settings and enable notifications for this app.",
+                subtitle: "Notifications are currently blocked. Open Settings and enable notifications for this app.",
                 systemImage: "exclamationmark.triangle.fill",
                 tint: AppTheme.error,
                 actionTitle: "Open Settings",
                 actionSystemImage: "gearshape.fill",
-                actionTint: AppTheme.error
-            ) {
-                guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else {
-                    return
+                actionTint: AppTheme.error,
+                action: {
+                    guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else {
+                        return
+                    }
+                    openURL(settingsURL)
                 }
-                openURL(settingsURL)
-            }
+            )
         }
     }
 }

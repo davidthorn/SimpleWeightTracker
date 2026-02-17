@@ -25,7 +25,7 @@ internal struct HistoryView: View {
                 LazyVStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 10) {
                         NavigationLink(value: HistoryRoute.addEntry) {
-                            HistoryTopActionComponent(
+                            SimpleTopActionCard(
                                 title: "Add Entry",
                                 systemImage: "plus.circle.fill",
                                 tint: AppTheme.accent
@@ -34,7 +34,7 @@ internal struct HistoryView: View {
                         .buttonStyle(.plain)
 
                         NavigationLink(value: HistoryRoute.filter) {
-                            HistoryTopActionComponent(
+                            SimpleTopActionCard(
                                 title: "Filters",
                                 systemImage: "line.3.horizontal.decrease.circle",
                                 tint: AppTheme.warning
