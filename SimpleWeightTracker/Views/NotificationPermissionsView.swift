@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 import UIKit
 
 internal struct NotificationPermissionsView: View {
@@ -24,16 +25,16 @@ internal struct NotificationPermissionsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    ThemedHeroHeaderCardComponent(
+                    SimpleHeroCard(
                         title: "Notification Permission",
-                        subtitle: "Weight reminders help you keep your logging routine consistent.",
+                        message: "Weight reminders help you keep your logging routine consistent.",
                         systemImage: "bell.badge.fill",
                         tint: AppTheme.warning
                     )
                     permissionStateCard
 
                     if let errorMessage = viewModel.errorMessage {
-                        FormErrorCardComponent(message: errorMessage)
+                        SimpleFormErrorCard(message: errorMessage, tint: AppTheme.error)
                     }
                 }
                 .padding(.horizontal, 16)

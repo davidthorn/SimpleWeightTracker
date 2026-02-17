@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct DataManagementActionCardComponent: View {
     internal let title: String
@@ -39,15 +40,14 @@ internal struct DataManagementActionCardComponent: View {
                 Spacer()
             }
 
-            ActionButtonComponent(
+            SimpleActionButton(
                 title: actionTitle,
                 systemImage: "trash.fill",
                 tint: tint,
-                verticalPadding: 11,
+                style: .filled,
+                isEnabled: isDisabled == false,
                 action: action
             )
-            .opacity(isDisabled ? 0.45 : 1)
-            .disabled(isDisabled)
         }
         .padding(14)
         .background(

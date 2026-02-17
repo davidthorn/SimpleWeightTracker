@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct NotificationPermissionStateCardComponent: View {
     private let title: String
@@ -60,10 +61,11 @@ internal struct NotificationPermissionStateCardComponent: View {
             }
 
             if let actionTitle, let actionSystemImage, let actionTint {
-                ActionButtonComponent(
+                SimpleActionButton(
                     title: actionTitle,
                     systemImage: actionSystemImage,
                     tint: actionTint,
+                    style: .filled,
                     action: action
                 )
             }

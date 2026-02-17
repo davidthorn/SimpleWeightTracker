@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 import UIKit
 
 internal struct HealthKitSettingsView: View {
@@ -24,17 +25,18 @@ internal struct HealthKitSettingsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    ThemedHeroHeaderCardComponent(
+                    SimpleHeroCard(
                         title: "Health Integration",
-                        subtitle: "Choose whether new weight entries should be written to Apple Health.",
+                        message: "Choose whether new weight entries should be written to Apple Health.",
                         systemImage: "heart.text.square.fill",
                         tint: AppTheme.error
                     )
 
-                    HealthKitPermissionsCardComponent(
-                        permissionState: viewModel.permissionState,
+                    SimpleHealthKitPermissionsCard(
+                        permissionState: frameworkPermissionState,
                         statusSummaryText: viewModel.statusSummaryText,
                         isHealthKitAvailable: viewModel.isHealthKitAvailable,
+                        accentTint: AppTheme.warning,
                         onRequestAccess: {
                             Task {
                                 if Task.isCancelled { return }
@@ -49,7 +51,7 @@ internal struct HealthKitSettingsView: View {
                         }
                     )
 
-                    HealthKitAutoSyncCardComponent(
+                    SimpleHealthKitAutoSyncCard(
                         isAutoSyncEnabled: Binding(
                             get: { viewModel.isAutoSyncEnabled },
                             set: { newValue in
@@ -59,11 +61,12 @@ internal struct HealthKitSettingsView: View {
                                 }
                             }
                         ),
-                        isHealthKitAvailable: viewModel.isHealthKitAvailable
+                        isHealthKitAvailable: viewModel.isHealthKitAvailable,
+                        tint: AppTheme.success
                     )
 
                     if let errorMessage = viewModel.errorMessage {
-                        FormErrorCardComponent(message: errorMessage)
+                        SimpleFormErrorCard(message: errorMessage, tint: AppTheme.error)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -84,6 +87,12 @@ internal struct HealthKitSettingsView: View {
             if Task.isCancelled { return }
             await viewModel.observeAppDidBecomeActive()
         }
+    }
+
+    private var frameworkPermissionState: SimpleFramework.HealthKitPermissionState {
+        let read = SimpleFramework.HealthKitAuthorizationState(rawValue: viewModel.permissionState.read.rawValue) ?? .unavailable
+        let write = SimpleFramework.HealthKitAuthorizationState(rawValue: viewModel.permissionState.write.rawValue) ?? .unavailable
+        return SimpleFramework.HealthKitPermissionState(read: read, write: write)
     }
 }
 

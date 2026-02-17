@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct GoalSetupView: View {
     @Environment(\.dismiss) private var dismiss
@@ -27,26 +28,37 @@ internal struct GoalSetupView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    ThemedHeroHeaderCardComponent(
+                    SimpleHeroCard(
                         title: "Target Setup",
-                        subtitle: "Define the number you are moving toward.",
+                        message: "Define the number you are moving toward.",
                         systemImage: "target",
                         tint: AppTheme.accent
                     )
 
-                    GoalSetupFormFieldsComponent(
-                        targetValueText: $viewModel.targetValueText,
-                        selectedUnit: $viewModel.selectedUnit
+                    SimpleLabeledTextFieldCard(
+                        text: $viewModel.targetValueText,
+                        title: "Target Weight",
+                        placeholder: "e.g. 70.0",
+                        helperText: "Unit: \(viewModel.selectedUnit == .kilograms ? "kg" : "lb")"
+                    )
+                    .keyboardType(.decimalPad)
+
+                    SimpleSegmentedChoiceCard(
+                        selectedValue: selectedUnitBinding,
+                        title: "Unit",
+                        options: unitOptions
                     )
 
                     if let errorMessage = viewModel.errorMessage {
-                        FormErrorCardComponent(message: errorMessage)
+                        SimpleFormErrorCard(message: errorMessage, tint: AppTheme.error)
                     }
 
-                    FormActionButtonsComponent(
-                        goalCanSave: viewModel.canSave,
-                        isPersisted: viewModel.isPersisted,
-                        hasChanges: viewModel.hasChanges,
+                    SimpleFormActionButtons(
+                        showSave: viewModel.canSave,
+                        showReset: viewModel.isPersisted && viewModel.hasChanges,
+                        showDelete: viewModel.isPersisted,
+                        saveTitle: "Save Target",
+                        deleteTitle: "Delete Target",
                         onSave: {
                             Task {
                                 if Task.isCancelled { return }
@@ -77,7 +89,7 @@ internal struct GoalSetupView: View {
                         showingDeleteConfirmation = false
                     }
 
-                DestructiveConfirmationCardComponent(
+                SimpleDestructiveConfirmationCard(
                     title: "Delete current goal?",
                     message: "This removes your target value but keeps all logged weight entries.",
                     confirmTitle: "Delete Goal",
@@ -115,6 +127,24 @@ internal struct GoalSetupView: View {
             await viewModel.observeUnit()
         }
         .animation(.easeInOut(duration: 0.2), value: showingDeleteConfirmation)
+    }
+
+    private var unitOptions: [SimpleSegmentedChoiceOption] {
+        [
+            SimpleSegmentedChoiceOption(title: "KG", value: WeightUnit.kilograms.rawValue),
+            SimpleSegmentedChoiceOption(title: "LB", value: WeightUnit.pounds.rawValue)
+        ]
+    }
+
+    private var selectedUnitBinding: Binding<String> {
+        Binding(
+            get: { viewModel.selectedUnit.rawValue },
+            set: { value in
+                if let unit = WeightUnit(rawValue: value) {
+                    viewModel.selectedUnit = unit
+                }
+            }
+        )
     }
 }
 

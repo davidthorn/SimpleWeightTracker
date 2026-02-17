@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct EditWeightEntryView: View {
     @Environment(\.dismiss) private var dismiss
@@ -25,9 +26,9 @@ internal struct EditWeightEntryView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    formHeader(
+                    SimpleHeroCard(
                         title: "Edit Entry",
-                        subtitle: "Refine this log and keep your timeline precise.",
+                        message: "Refine this log and keep your timeline precise.",
                         systemImage: "pencil.circle.fill",
                         tint: AppTheme.warning
                     )
@@ -47,8 +48,13 @@ internal struct EditWeightEntryView: View {
                         }
                         .pickerStyle(.segmented)
 
-                        fieldTitle("Measured At")
-                        WeightEntryDateTimeInputComponent(measuredAt: $viewModel.measuredAt)
+                        SimpleDateTimeInputCard(
+                            date: $viewModel.measuredAt,
+                            title: "Adjust Date & Time",
+                            subtitle: "Pick when this measurement was captured.",
+                            icon: "calendar.badge.clock",
+                            accent: AppTheme.accent
+                        )
                     }
                     .padding(14)
                     .background(cardBackground)
@@ -58,46 +64,31 @@ internal struct EditWeightEntryView: View {
                     }
 
                     if let errorMessage = viewModel.errorMessage {
-                        FormErrorCardComponent(message: errorMessage)
+                        SimpleFormErrorCard(message: errorMessage, tint: AppTheme.error)
                     }
 
-                    VStack(spacing: 10) {
-                        if viewModel.canSave {
-                            ActionButtonComponent(
-                                title: "Save Changes",
-                                systemImage: "checkmark.circle.fill",
-                                tint: AppTheme.accent
-                            ) {
-                                Task {
-                                    if Task.isCancelled { return }
-                                    let didSave = await viewModel.save()
-                                    if didSave {
-                                        dismiss()
-                                    }
+                    SimpleFormActionButtons(
+                        showSave: viewModel.canSave,
+                        showReset: viewModel.isPersisted && viewModel.hasChanges,
+                        showDelete: viewModel.isPersisted,
+                        saveTitle: "Save Changes",
+                        deleteTitle: "Delete Entry",
+                        onSave: {
+                            Task {
+                                if Task.isCancelled { return }
+                                let didSave = await viewModel.save()
+                                if didSave {
+                                    dismiss()
                                 }
                             }
+                        },
+                        onReset: {
+                            viewModel.reset()
+                        },
+                        onDelete: {
+                            showingDeleteConfirmation = true
                         }
-
-                        if viewModel.isPersisted && viewModel.hasChanges {
-                            ActionButtonComponent(
-                                title: "Reset",
-                                systemImage: "arrow.uturn.backward.circle.fill",
-                                tint: AppTheme.warning
-                            ) {
-                                viewModel.reset()
-                            }
-                        }
-
-                        if viewModel.isPersisted {
-                            ActionButtonComponent(
-                                title: "Delete Entry",
-                                systemImage: "trash.fill",
-                                tint: AppTheme.error
-                            ) {
-                                showingDeleteConfirmation = true
-                            }
-                        }
-                    }
+                    )
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -111,7 +102,7 @@ internal struct EditWeightEntryView: View {
                         showingDeleteConfirmation = false
                     }
 
-                DestructiveConfirmationCardComponent(
+                SimpleDestructiveConfirmationCard(
                     title: "Delete this entry?",
                     message: "This permanently removes the weight log from your history.",
                     confirmTitle: "Delete Entry",
@@ -177,18 +168,18 @@ internal struct EditWeightEntryView: View {
             }
 
             if viewModel.syncMetadata == nil {
-                ActionButtonComponent(
+                SimpleActionButton(
                     title: viewModel.isSyncingToHealthKit ? "Syncing..." : "Sync Entry to HealthKit",
                     systemImage: "arrow.triangle.2.circlepath.circle.fill",
-                    tint: AppTheme.success
+                    tint: AppTheme.success,
+                    style: .filled,
+                    isEnabled: viewModel.isSyncingToHealthKit == false && viewModel.canSyncToHealthKit
                 ) {
                     Task {
                         if Task.isCancelled { return }
                         await viewModel.syncPersistedEntryToHealthKit()
                     }
                 }
-                .disabled(viewModel.isSyncingToHealthKit || viewModel.canSyncToHealthKit == false)
-                .opacity(viewModel.canSyncToHealthKit ? 1 : 0.55)
             }
         }
         .padding(14)
@@ -211,36 +202,6 @@ internal struct EditWeightEntryView: View {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .stroke(AppTheme.border, lineWidth: 1)
             )
-    }
-
-    private func formHeader(title: String, subtitle: String, systemImage: String, tint: Color) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: systemImage)
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(tint)
-                .padding(9)
-                .background(
-                    Circle()
-                        .fill(tint.opacity(0.14))
-                )
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.headline)
-                Text(subtitle)
-                    .font(.footnote)
-                    .foregroundStyle(AppTheme.muted)
-            }
-            Spacer()
-        }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(AppTheme.cardBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(tint.opacity(0.2), lineWidth: 1)
-                )
-        )
     }
 
     private func fieldTitle(_ title: String) -> some View {

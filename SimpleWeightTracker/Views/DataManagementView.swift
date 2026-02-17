@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct DataManagementView: View {
     @StateObject private var viewModel: DataManagementViewModel
@@ -24,9 +25,9 @@ internal struct DataManagementView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    ThemedHeroHeaderCardComponent(
+                    SimpleHeroCard(
                         title: "Data Controls",
-                        subtitle: "Use these actions carefully. Some operations permanently remove stored data.",
+                        message: "Use these actions carefully. Some operations permanently remove stored data.",
                         systemImage: "externaldrive.badge.exclamationmark",
                         tint: AppTheme.error
                     )
@@ -101,7 +102,7 @@ internal struct DataManagementView: View {
     private func confirmationCard(for action: DataManagementConfirmationAction) -> some View {
         switch action {
         case .clearGoal:
-            DestructiveConfirmationCardComponent(
+            SimpleDestructiveConfirmationCard(
                 title: "Delete current goal?",
                 message: "This removes your target value but keeps all logged weight entries.",
                 confirmTitle: "Delete Goal",
@@ -119,7 +120,7 @@ internal struct DataManagementView: View {
                 }
             )
         case .resetPreferences:
-            DestructiveConfirmationCardComponent(
+            SimpleDestructiveConfirmationCard(
                 title: "Reset preferences?",
                 message: "This resets units, reminder schedule, history filter, and HealthKit sync settings.",
                 confirmTitle: "Reset",
@@ -137,7 +138,7 @@ internal struct DataManagementView: View {
                 }
             )
         case .wipeAllData:
-            DestructiveConfirmationCardComponent(
+            SimpleDestructiveConfirmationCard(
                 title: "Wipe all data from this app?",
                 message: "This permanently removes all entries, goal, reminder schedule, and preferences including HealthKit sync.",
                 confirmTitle: "Wipe All Data",

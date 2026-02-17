@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
@@ -37,7 +38,7 @@ internal struct HomeView: View {
 
                     VStack(spacing: 10) {
                         NavigationLink(value: HomeRoute.addEntry) {
-                            RouteRowComponent(
+                            SimpleRouteRow(
                                 title: "Add Weight Entry",
                                 subtitle: "Log a new measurement",
                                 systemImage: "plus.circle.fill",
@@ -48,7 +49,7 @@ internal struct HomeView: View {
 
                         if let latestIdentifier = viewModel.latestEntryIdentifier {
                             NavigationLink(value: HomeRoute.editEntry(latestIdentifier)) {
-                                RouteRowComponent(
+                                SimpleRouteRow(
                                     title: "Edit Latest Entry",
                                     subtitle: "Adjust your most recent log",
                                     systemImage: "pencil.circle.fill",
@@ -59,7 +60,7 @@ internal struct HomeView: View {
                         }
 
                         NavigationLink(value: HomeRoute.dayDetail(viewModel.todayIdentifier)) {
-                            RouteRowComponent(
+                            SimpleRouteRow(
                                 title: "Today Details",
                                 subtitle: "Review every entry from today",
                                 systemImage: "calendar",
@@ -69,7 +70,7 @@ internal struct HomeView: View {
                         .buttonStyle(.plain)
 
                         NavigationLink(value: HomeRoute.goalSetup) {
-                            RouteRowComponent(
+                            SimpleRouteRow(
                                 title: "Set Target Weight",
                                 subtitle: "Define your target and unit",
                                 systemImage: "target",

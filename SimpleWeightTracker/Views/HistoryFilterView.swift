@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct HistoryFilterView: View {
     @StateObject private var viewModel: HistoryFilterViewModel
@@ -22,9 +23,9 @@ internal struct HistoryFilterView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    ThemedHeroHeaderCardComponent(
+                    SimpleHeroCard(
                         title: "Filter Window",
-                        subtitle: "Focus history on the window that matters now.",
+                        message: "Focus history on the window that matters now.",
                         systemImage: "line.3.horizontal.decrease.circle.fill",
                         tint: AppTheme.warning
                     )

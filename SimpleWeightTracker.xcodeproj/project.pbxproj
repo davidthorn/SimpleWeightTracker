@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4439029D2F422090003DB03B /* SimpleWeightTracker Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 4439029C2F422090003DB03B /* SimpleWeightTracker Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		447E58082F44B9E4001CD834 /* SimpleFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 447E58072F44B9E4001CD834 /* SimpleFramework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				447E58082F44B9E4001CD834 /* SimpleFramework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,6 +112,7 @@
 			);
 			name = SimpleWeightTracker;
 			packageProductDependencies = (
+				447E58072F44B9E4001CD834 /* SimpleFramework */,
 			);
 			productName = SimpleWeightTracker;
 			productReference = 4439028F2F42208E003DB03B /* SimpleWeightTracker.app */;
@@ -164,6 +167,9 @@
 			);
 			mainGroup = 443902862F42208E003DB03B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				447E58062F44B9E4001CD834 /* XCLocalSwiftPackageReference "../SimpleFramework" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 443902902F42208E003DB03B /* Products */;
 			projectDirPath = "";
@@ -519,6 +525,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		447E58062F44B9E4001CD834 /* XCLocalSwiftPackageReference "../SimpleFramework" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../SimpleFramework;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		447E58072F44B9E4001CD834 /* SimpleFramework */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SimpleFramework;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 443902872F42208E003DB03B /* Project object */;
 }

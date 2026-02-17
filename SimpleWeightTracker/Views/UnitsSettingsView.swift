@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct UnitsSettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -27,17 +28,25 @@ internal struct UnitsSettingsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    ThemedHeroHeaderCardComponent(
+                    SimpleHeroCard(
                         title: "Unit Preference",
-                        subtitle: "Pick your base measurement language.",
+                        message: "Pick your base measurement language.",
                         systemImage: "scalemass",
                         tint: AppTheme.accent
                     )
 
-                    UnitsSettingsFormCardComponent(selectedUnit: $viewModel.selectedUnit)
+                    SimpleSegmentedChoiceCard(
+                        selectedValue: selectedUnitBinding,
+                        title: "Preferred Unit",
+                        options: unitOptions
+                    )
 
-                    FormActionButtonsComponent(
-                        unitsHasChanges: viewModel.hasChanges,
+                    SimpleFormActionButtons(
+                        showSave: viewModel.hasChanges,
+                        showReset: viewModel.hasChanges,
+                        showDelete: true,
+                        saveTitle: "Save Preference",
+                        deleteTitle: "Delete Preference",
                         onSave: {
                             Task {
                                 if Task.isCancelled { return }
@@ -65,7 +74,7 @@ internal struct UnitsSettingsView: View {
                         showingDeleteConfirmation = false
                     }
 
-                DestructiveConfirmationCardComponent(
+                SimpleDestructiveConfirmationCard(
                     title: "Delete unit preference?",
                     message: "This removes your saved preference and restores the app default.",
                     confirmTitle: "Delete Preference",
@@ -99,6 +108,24 @@ internal struct UnitsSettingsView: View {
             await viewModel.observeUnit()
         }
         .animation(.easeInOut(duration: 0.2), value: showingDeleteConfirmation)
+    }
+
+    private var unitOptions: [SimpleSegmentedChoiceOption] {
+        [
+            SimpleSegmentedChoiceOption(title: "KG", value: WeightUnit.kilograms.rawValue),
+            SimpleSegmentedChoiceOption(title: "LB", value: WeightUnit.pounds.rawValue)
+        ]
+    }
+
+    private var selectedUnitBinding: Binding<String> {
+        Binding(
+            get: { viewModel.selectedUnit.rawValue },
+            set: { value in
+                if let unit = WeightUnit(rawValue: value) {
+                    viewModel.selectedUnit = unit
+                }
+            }
+        )
     }
 }
 

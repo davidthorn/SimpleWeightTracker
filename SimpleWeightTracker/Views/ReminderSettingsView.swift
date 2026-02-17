@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct ReminderSettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -27,27 +28,25 @@ internal struct ReminderSettingsView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    ThemedHeroHeaderCardComponent(
+                    SimpleHeroCard(
                         title: "Reminder Engine",
-                        subtitle: "Tune cadence and active hours for your prompts.",
+                        message: "Tune cadence and active hours for your prompts.",
                         systemImage: "bell.badge.fill",
                         tint: AppTheme.warning
                     )
 
-                    ReminderSettingsFormCardComponent(
-                        isEnabled: $viewModel.isEnabled,
-                        startHour: $viewModel.startHour,
-                        endHour: $viewModel.endHour,
-                        intervalMinutes: $viewModel.intervalMinutes
-                    )
+                    scheduleCard
 
                     if let errorMessage = viewModel.errorMessage {
-                        FormErrorCardComponent(message: errorMessage)
+                        SimpleFormErrorCard(message: errorMessage, tint: AppTheme.error)
                     }
 
-                    FormActionButtonsComponent(
-                        reminderHasChanges: viewModel.hasChanges,
-                        hasPersistedSchedule: viewModel.initialSchedule != nil,
+                    SimpleFormActionButtons(
+                        showSave: viewModel.hasChanges,
+                        showReset: viewModel.hasChanges && viewModel.initialSchedule != nil,
+                        showDelete: viewModel.initialSchedule != nil,
+                        saveTitle: "Save Schedule",
+                        deleteTitle: "Delete Schedule",
                         onSave: {
                             Task {
                                 if Task.isCancelled { return }
@@ -77,7 +76,7 @@ internal struct ReminderSettingsView: View {
                         showingDeleteConfirmation = false
                     }
 
-                DestructiveConfirmationCardComponent(
+                SimpleDestructiveConfirmationCard(
                     title: "Delete this reminder schedule?",
                     message: "This permanently removes the current reminder window and interval from this app.",
                     confirmTitle: "Delete Schedule",
@@ -111,6 +110,70 @@ internal struct ReminderSettingsView: View {
             await viewModel.load()
         }
         .animation(.easeInOut(duration: 0.2), value: showingDeleteConfirmation)
+    }
+
+    private var scheduleCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SimpleToggleCardRow(
+                isOn: $viewModel.isEnabled,
+                title: "Enabled",
+                message: "Enable scheduled reminders.",
+                systemImage: "bell.badge",
+                tint: AppTheme.accent
+            )
+
+            if viewModel.isEnabled {
+                ReminderSettingsStepperRowComponent(
+                    title: "Start Hour",
+                    value: $viewModel.startHour,
+                    valueTint: AppTheme.accent,
+                    range: 0...23
+                )
+
+                ReminderSettingsStepperRowComponent(
+                    title: "End Hour",
+                    value: $viewModel.endHour,
+                    valueTint: AppTheme.success,
+                    range: 0...23
+                )
+
+                ReminderSettingsStepperRowComponent(
+                    title: "Interval Minutes",
+                    value: $viewModel.intervalMinutes,
+                    valueTint: AppTheme.warning,
+                    range: 30...360,
+                    step: 30
+                )
+            } else {
+                Text("Enable reminders to configure start, end, and interval.")
+                    .font(.footnote)
+                    .foregroundStyle(AppTheme.muted)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(inputBackground)
+            }
+        }
+        .padding(14)
+        .background(cardBackground)
+    }
+
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .fill(AppTheme.cardBackground)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(AppTheme.border, lineWidth: 1)
+            )
+    }
+
+    private var inputBackground: some View {
+        RoundedRectangle(cornerRadius: 10, style: .continuous)
+            .fill(Color.white.opacity(0.66))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(AppTheme.border, lineWidth: 1)
+            )
     }
 }
 
