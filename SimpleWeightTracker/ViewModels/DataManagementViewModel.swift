@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import SimpleFramework
 
 @MainActor
 internal final class DataManagementViewModel: ObservableObject {
@@ -19,8 +20,8 @@ internal final class DataManagementViewModel: ObservableObject {
     private let unitsPreferenceService: UnitsPreferenceServiceProtocol
     private let reminderService: ReminderServiceProtocol
     private let historyFilterService: HistoryFilterServiceProtocol
-    private let healthKitWeightService: HealthKitWeightServiceProtocol
-    private let weightEntrySyncMetadataService: WeightEntrySyncMetadataServiceProtocol
+    private let healthKitWeightService: HealthKitQuantitySyncServiceProtocol
+    private let weightEntrySyncMetadataService: HealthKitEntrySyncMetadataServiceProtocol
 
     internal init(serviceContainer: ServiceContainerProtocol) {
         weightEntryService = serviceContainer.weightEntryService

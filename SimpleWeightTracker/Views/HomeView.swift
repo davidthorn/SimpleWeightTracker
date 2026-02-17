@@ -81,7 +81,7 @@ internal struct HomeView: View {
                     }
 
                     if let errorMessage = viewModel.errorMessage {
-                        HomeStatusCardComponent(
+                        SimpleStatusCard(
                             title: "Unable to Refresh Home",
                             message: errorMessage,
                             systemImage: "exclamationmark.triangle.fill",

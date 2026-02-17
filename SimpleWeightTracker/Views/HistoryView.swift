@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SimpleFramework
 
 internal struct HistoryView: View {
     @StateObject private var viewModel: HistoryViewModel
@@ -43,7 +44,7 @@ internal struct HistoryView: View {
                     }
 
                     if viewModel.dayGroups.isEmpty {
-                        HistoryStatusCardComponent(
+                        SimpleStatusCard(
                             title: "No History Yet",
                             message: "Log your first weight and it will appear here.",
                             systemImage: "clock.badge.questionmark",
@@ -56,7 +57,7 @@ internal struct HistoryView: View {
                     }
 
                     if let errorMessage = viewModel.errorMessage {
-                        HistoryStatusCardComponent(
+                        SimpleStatusCard(
                             title: "Unable to Load History",
                             message: errorMessage,
                             systemImage: "exclamationmark.triangle.fill",

@@ -33,7 +33,7 @@ internal struct HealthKitSettingsView: View {
                     )
 
                     SimpleHealthKitPermissionsCard(
-                        permissionState: frameworkPermissionState,
+                        permissionState: viewModel.permissionState,
                         statusSummaryText: viewModel.statusSummaryText,
                         isHealthKitAvailable: viewModel.isHealthKitAvailable,
                         accentTint: AppTheme.warning,
@@ -87,12 +87,6 @@ internal struct HealthKitSettingsView: View {
             if Task.isCancelled { return }
             await viewModel.observeAppDidBecomeActive()
         }
-    }
-
-    private var frameworkPermissionState: SimpleFramework.HealthKitPermissionState {
-        let read = SimpleFramework.HealthKitAuthorizationState(rawValue: viewModel.permissionState.read.rawValue) ?? .unavailable
-        let write = SimpleFramework.HealthKitAuthorizationState(rawValue: viewModel.permissionState.write.rawValue) ?? .unavailable
-        return SimpleFramework.HealthKitPermissionState(read: read, write: write)
     }
 }
 

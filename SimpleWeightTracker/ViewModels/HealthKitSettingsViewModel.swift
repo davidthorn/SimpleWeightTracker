@@ -7,16 +7,17 @@
 
 import Combine
 import Foundation
+import SimpleFramework
 import UIKit
 
 @MainActor
 internal final class HealthKitSettingsViewModel: ObservableObject {
     @Published internal private(set) var isHealthKitAvailable: Bool
-    @Published internal private(set) var permissionState: HealthKitWeightPermissionState
+    @Published internal private(set) var permissionState: HealthKitPermissionState
     @Published internal private(set) var isAutoSyncEnabled: Bool
     @Published internal private(set) var errorMessage: String?
 
-    private let healthKitWeightService: HealthKitWeightServiceProtocol
+    private let healthKitWeightService: HealthKitQuantitySyncServiceProtocol
 
     internal init(serviceContainer: ServiceContainerProtocol) {
         healthKitWeightService = serviceContainer.healthKitWeightService
@@ -48,7 +49,7 @@ internal final class HealthKitSettingsViewModel: ObservableObject {
     }
 
     internal func requestPermissions() async {
-        permissionState = await healthKitWeightService.requestWeightPermissions()
+        permissionState = await healthKitWeightService.requestPermissions()
     }
 
     internal func setAutoSyncEnabled(_ isEnabled: Bool) async {
@@ -56,7 +57,7 @@ internal final class HealthKitSettingsViewModel: ObservableObject {
         isAutoSyncEnabled = isEnabled
 
         if isEnabled && permissionState.write != .authorized {
-            permissionState = await healthKitWeightService.requestWeightPermissions()
+            permissionState = await healthKitWeightService.requestPermissions()
             if permissionState.write != .authorized {
                 errorMessage = "Enable Health permissions to save weight entries into HealthKit."
             } else {

@@ -35,7 +35,23 @@ internal struct ReminderSettingsView: View {
                         tint: AppTheme.warning
                     )
 
-                    scheduleCard
+                    SimpleReminderScheduleCard(
+                        isEnabled: $viewModel.isEnabled,
+                        startHour: $viewModel.startHour,
+                        endHour: $viewModel.endHour,
+                        intervalMinutes: $viewModel.intervalMinutes,
+                        title: "Schedule",
+                        enabledTitle: "Enabled",
+                        enabledMessage: "Enable scheduled reminders.",
+                        startHourTitle: "Start Hour",
+                        endHourTitle: "End Hour",
+                        intervalTitle: "Interval Minutes",
+                        disabledMessage: "Enable reminders to configure start, end, and interval.",
+                        tint: AppTheme.accent,
+                        startValueTint: AppTheme.accent,
+                        endValueTint: AppTheme.success,
+                        intervalValueTint: AppTheme.warning
+                    )
 
                     if let errorMessage = viewModel.errorMessage {
                         SimpleFormErrorCard(message: errorMessage, tint: AppTheme.error)
@@ -110,70 +126,6 @@ internal struct ReminderSettingsView: View {
             await viewModel.load()
         }
         .animation(.easeInOut(duration: 0.2), value: showingDeleteConfirmation)
-    }
-
-    private var scheduleCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SimpleToggleCardRow(
-                isOn: $viewModel.isEnabled,
-                title: "Enabled",
-                message: "Enable scheduled reminders.",
-                systemImage: "bell.badge",
-                tint: AppTheme.accent
-            )
-
-            if viewModel.isEnabled {
-                ReminderSettingsStepperRowComponent(
-                    title: "Start Hour",
-                    value: $viewModel.startHour,
-                    valueTint: AppTheme.accent,
-                    range: 0...23
-                )
-
-                ReminderSettingsStepperRowComponent(
-                    title: "End Hour",
-                    value: $viewModel.endHour,
-                    valueTint: AppTheme.success,
-                    range: 0...23
-                )
-
-                ReminderSettingsStepperRowComponent(
-                    title: "Interval Minutes",
-                    value: $viewModel.intervalMinutes,
-                    valueTint: AppTheme.warning,
-                    range: 30...360,
-                    step: 30
-                )
-            } else {
-                Text("Enable reminders to configure start, end, and interval.")
-                    .font(.footnote)
-                    .foregroundStyle(AppTheme.muted)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(inputBackground)
-            }
-        }
-        .padding(14)
-        .background(cardBackground)
-    }
-
-    private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 16, style: .continuous)
-            .fill(AppTheme.cardBackground)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(AppTheme.border, lineWidth: 1)
-            )
-    }
-
-    private var inputBackground: some View {
-        RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .fill(Color.white.opacity(0.66))
-            .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(AppTheme.border, lineWidth: 1)
-            )
     }
 }
 

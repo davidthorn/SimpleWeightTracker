@@ -7,6 +7,8 @@
 
 #if DEBUG
     import Foundation
+    import HealthKit
+    import SimpleFramework
 
     internal struct PreviewServiceContainer: ServiceContainerProtocol {
         internal let weightEntryService: WeightEntryServiceProtocol
@@ -14,36 +16,46 @@
         internal let reminderService: ReminderServiceProtocol
         internal let unitsPreferenceService: UnitsPreferenceServiceProtocol
         internal let historyFilterService: HistoryFilterServiceProtocol
-        internal let healthKitWeightService: HealthKitWeightServiceProtocol
-        internal let weightEntrySyncMetadataService: WeightEntrySyncMetadataServiceProtocol
+        internal let healthKitWeightService: HealthKitQuantitySyncServiceProtocol
+        internal let weightEntrySyncMetadataService: HealthKitEntrySyncMetadataServiceProtocol
 
         internal init() {
-            let previewFilePathResolver = StoreFilePathResolver()
-            let previewCodec = StoreJSONCodec()
-
-            let previewWeightEntryStore = WeightEntryStore(
+            let previewWeightEntryStore = JSONEntityStore<WeightEntry>(
                 fileName: "preview_weight_entries.json",
-                filePathResolver: previewFilePathResolver,
-                codec: previewCodec
+                sort: { $0.measuredAt > $1.measuredAt }
             )
-            let previewGoalStore = GoalStore(
-                fileName: "preview_weight_goal.json",
-                filePathResolver: previewFilePathResolver,
-                codec: previewCodec
+            let previewGoalStore = JSONValueStore<WeightGoal>(
+                fileName: "preview_weight_goal.json"
             )
-            let previewSyncMetadataStore = WeightEntrySyncMetadataStore(
-                fileName: "preview_weight_entry_sync_metadata.json",
-                filePathResolver: previewFilePathResolver,
-                codec: previewCodec
+            let previewSyncMetadataStore = HealthKitEntrySyncMetadataStore(
+                fileName: "preview_weight_entry_sync_metadata.json"
             )
+            let previewHealthKitQuantityService = HealthKitQuantityService()
 
             weightEntryService = WeightEntryService(weightEntryStore: previewWeightEntryStore)
             goalService = GoalService(goalStore: previewGoalStore)
-            reminderService = ReminderService(scheduleKey: "preview_weight_reminder_schedule")
+            reminderService = ReminderService(
+                configuration: ReminderServiceConfiguration(
+                    identifierPrefix: "preview.weight.reminder",
+                    scheduleEnabledKey: "preview.weight.reminder.schedule.enabled",
+                    scheduleStartHourKey: "preview.weight.reminder.schedule.startHour",
+                    scheduleEndHourKey: "preview.weight.reminder.schedule.endHour",
+                    scheduleIntervalKey: "preview.weight.reminder.schedule.interval",
+                    notificationTitle: "Weight Reminder",
+                    notificationBody: "Log your weight reading."
+                )
+            )
             unitsPreferenceService = UnitsPreferenceService(key: "preview_weight_unit_preference")
             historyFilterService = HistoryFilterService(key: "preview_weight_history_filter_configuration")
-            healthKitWeightService = HealthKitWeightService(autoSyncKey: "preview_weight_healthkit_auto_sync_enabled")
-            weightEntrySyncMetadataService = WeightEntrySyncMetadataService(store: previewSyncMetadataStore)
+            healthKitWeightService = HealthKitQuantitySyncService(
+                descriptor: HealthKitQuantitySyncDescriptor(
+                    quantityIdentifier: .bodyMass,
+                    providerIdentifier: "healthkit.bodyMass",
+                    autoSyncKey: "preview_weight_healthkit_auto_sync_enabled"
+                ),
+                quantityService: previewHealthKitQuantityService
+            )
+            weightEntrySyncMetadataService = HealthKitEntrySyncMetadataService(store: previewSyncMetadataStore)
         }
     }
 #endif

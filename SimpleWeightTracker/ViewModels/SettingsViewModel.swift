@@ -7,16 +7,17 @@
 
 import Combine
 import Foundation
+import SimpleFramework
 
 @MainActor
 internal final class SettingsViewModel: ObservableObject {
     @Published internal private(set) var unit: WeightUnit
     @Published internal private(set) var reminderStatus: ReminderAuthorizationStatus
-    @Published internal private(set) var healthKitPermissionState: HealthKitWeightPermissionState
+    @Published internal private(set) var healthKitPermissionState: HealthKitPermissionState
 
     private let unitsPreferenceService: UnitsPreferenceServiceProtocol
     private let reminderService: ReminderServiceProtocol
-    private let healthKitWeightService: HealthKitWeightServiceProtocol
+    private let healthKitWeightService: HealthKitQuantitySyncServiceProtocol
 
     internal init(serviceContainer: ServiceContainerProtocol) {
         unitsPreferenceService = serviceContainer.unitsPreferenceService

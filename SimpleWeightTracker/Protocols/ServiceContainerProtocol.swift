@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SimpleFramework
 
 internal protocol ServiceContainerProtocol: Sendable {
     var weightEntryService: WeightEntryServiceProtocol { get }
@@ -13,6 +14,6 @@ internal protocol ServiceContainerProtocol: Sendable {
     var reminderService: ReminderServiceProtocol { get }
     var unitsPreferenceService: UnitsPreferenceServiceProtocol { get }
     var historyFilterService: HistoryFilterServiceProtocol { get }
-    var healthKitWeightService: HealthKitWeightServiceProtocol { get }
-    var weightEntrySyncMetadataService: WeightEntrySyncMetadataServiceProtocol { get }
+    var healthKitWeightService: HealthKitQuantitySyncServiceProtocol { get }
+    var weightEntrySyncMetadataService: HealthKitEntrySyncMetadataServiceProtocol { get }
 }

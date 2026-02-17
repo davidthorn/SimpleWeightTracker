@@ -7,6 +7,8 @@
 
 import Combine
 import Foundation
+import HealthKit
+import SimpleFramework
 
 @MainActor
 internal final class WeightEntryEditorViewModel: ObservableObject {
@@ -42,16 +44,16 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
     @Published internal var measuredAt: Date
     @Published internal private(set) var errorMessage: String?
     @Published internal private(set) var initialEntry: WeightEntry?
-    @Published internal private(set) var syncMetadata: WeightEntrySyncMetadata?
-    @Published internal private(set) var healthKitPermissionState: HealthKitWeightPermissionState
+    @Published internal private(set) var syncMetadata: HealthKitEntrySyncMetadata?
+    @Published internal private(set) var healthKitPermissionState: HealthKitPermissionState
     @Published internal private(set) var isSyncingToHealthKit: Bool
 
     internal let persistedIdentifier: WeightEntryIdentifier?
 
     private let weightEntryService: WeightEntryServiceProtocol
     private let unitsPreferenceService: UnitsPreferenceServiceProtocol
-    private let healthKitWeightService: HealthKitWeightServiceProtocol
-    private let weightEntrySyncMetadataService: WeightEntrySyncMetadataServiceProtocol
+    private let healthKitWeightService: HealthKitQuantitySyncServiceProtocol
+    private let weightEntrySyncMetadataService: HealthKitEntrySyncMetadataServiceProtocol
 
     internal init(serviceContainer: ServiceContainerProtocol, entryIdentifier: WeightEntryIdentifier?) {
         weightEntryService = serviceContainer.weightEntryService
@@ -106,7 +108,7 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
             selectedUnit = fetchedEntry.unit
             measuredAt = fetchedEntry.measuredAt
             syncMetadata = try await weightEntrySyncMetadataService.fetchMetadata(
-                for: persistedIdentifier,
+                for: persistedIdentifier.value,
                 providerIdentifier: healthKitWeightService.providerIdentifier
             )
         } catch {
@@ -134,9 +136,14 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
         do {
             try await weightEntryService.upsertEntry(entry)
             if isNewEntry {
-                let externalIdentifier = try await healthKitWeightService.syncEntryIfEnabled(entry)
+                let externalIdentifier = try await healthKitWeightService.syncSampleIfEnabled(
+                    value: WeightUnit.kilograms.convertedValue(entry.value, from: entry.unit),
+                    unit: .gramUnit(with: .kilo),
+                    start: entry.measuredAt,
+                    end: entry.measuredAt
+                )
                 if let externalIdentifier {
-                    let metadata = WeightEntrySyncMetadata(
+                    let metadata = HealthKitEntrySyncMetadata(
                         entryID: entry.id,
                         providerIdentifier: healthKitWeightService.providerIdentifier,
                         externalIdentifier: externalIdentifier,
@@ -146,7 +153,7 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
                     syncMetadata = metadata
                 }
             } else if shouldInvalidateSyncMetadata, let persistedIdentifier {
-                try await weightEntrySyncMetadataService.deleteMetadata(for: persistedIdentifier)
+                try await weightEntrySyncMetadataService.deleteMetadata(for: persistedIdentifier.value)
                 syncMetadata = nil
             }
             initialEntry = entry
@@ -173,7 +180,7 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
 
         do {
             try await weightEntryService.deleteEntry(id: persistedIdentifier)
-            try await weightEntrySyncMetadataService.deleteMetadata(for: persistedIdentifier)
+            try await weightEntrySyncMetadataService.deleteMetadata(for: persistedIdentifier.value)
             return true
         } catch {
             errorMessage = Self.detailedErrorMessage(error)
@@ -201,7 +208,7 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
 
         do {
             syncMetadata = try await weightEntrySyncMetadataService.fetchMetadata(
-                for: persistedIdentifier,
+                for: persistedIdentifier.value,
                 providerIdentifier: healthKitWeightService.providerIdentifier
             )
         } catch {
@@ -241,8 +248,13 @@ internal final class WeightEntryEditorViewModel: ObservableObject {
         defer { isSyncingToHealthKit = false }
 
         do {
-            let externalIdentifier = try await healthKitWeightService.syncEntry(entry)
-            let metadata = WeightEntrySyncMetadata(
+            let externalIdentifier = try await healthKitWeightService.syncSample(
+                value: WeightUnit.kilograms.convertedValue(entry.value, from: entry.unit),
+                unit: .gramUnit(with: .kilo),
+                start: entry.measuredAt,
+                end: entry.measuredAt
+            )
+            let metadata = HealthKitEntrySyncMetadata(
                 entryID: persistedIdentifier.value,
                 providerIdentifier: healthKitWeightService.providerIdentifier,
                 externalIdentifier: externalIdentifier,
