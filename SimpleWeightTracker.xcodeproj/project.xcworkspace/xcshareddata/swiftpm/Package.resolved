@@ -1,0 +1,15 @@
+{
+  "originHash" : "64c05b6e3a68010a751e47f0de12f1e292364b2c229b80de6a8522de8979ce8a",
+  "pins" : [
+    {
+      "identity" : "simpleframework",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/davidthorn/SimpleFramework.git",
+      "state" : {
+        "revision" : "71ce624c2c2a2307b2d29c741b5c86e36c7cf162",
+        "version" : "0.3.0"
+      }
+    }
+  ],
+  "version" : 3
+}
